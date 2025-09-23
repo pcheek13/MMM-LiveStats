@@ -1,48 +1,46 @@
-# MMM-WNBAFeverStats
+# MMM-LiveStats
 
-MagicMirror² module that keeps Indiana Fever fans up to date with live WNBA player statistics and the next scheduled games. When the Fever are on the court the module shows real-time box score details for every player. Between games it highlights the next three matchups so you always know when to tune in.
+MMM-LiveStats is a MagicMirror² module that tracks your favorite basketball program with real-time box scores and a steady stream of upcoming matchups. It supports a single league at a time—either NCAA men's basketball or the WNBA—so you can dedicate the mirror space to the team that matters most. When a game is live you will see animated alerts, live scores, and player statistics; between games the module always highlights the next three contests on the schedule.
 
 ## Features
 
-- Live game detection powered by the public ESPN WNBA API.
-- Player level stat lines for points, rebounds, assists, and steals.
-- Automatic scoreboard with opponent, venue, and current game clock description.
-- Upcoming schedule list (up to three entries) whenever no games are live.
-- Configurable favorite team identifier, title text, and update interval.
+- Works with NCAA men's basketball and WNBA teams using ESPN's public data feeds (no API key required).
+- Always-on upcoming schedule that shows the next three games even when no live event is in progress.
+- Flashing red live indicator on the stats table whenever your team is playing.
+- Team crests and color logos for your favorite team and every opponent.
+- Favorite-team banner with medium-sized crest and the current season record.
+- Scoreboard that keeps both teams' scores, names, and logos front and center.
+- Configurable polling interval, module header, and team selection helpers.
 
 ## Installation
 
-1. Navigate to the `modules` directory of your MagicMirror² installation:
+Copy and paste the commands below on your MagicMirror² host (including Raspberry Pi OS on a Raspberry Pi 5) to clone the repository into the proper module directory and install its dependencies:
 
-   ```bash
-   cd ~/MagicMirror/modules
-   ```
+```bash
+cd ~/MagicMirror/modules && \
+  git clone https://github.com/pcheek13/MMM-WNBAFeverStats MMM-LiveStats && \
+  cd MMM-LiveStats && \
+  npm install
+```
 
-2. Clone or copy this repository into the modules folder and install dependencies:
-
-   ```bash
-   git clone https://github.com/pcheek13/MMM-WNBAFeverStats
-   cd MMM-WNBAFeverStats
-   npm install
-   ```
-
-   > **Note:** The module depends on the public ESPN API. Depending on your network setup you may need to allow outbound HTTPS requests for the MagicMirror² host.
-
-3. Configure the module in `config/config.js` as shown below.
+After installation, add the module to your `config/config.js` file.
 
 ## Configuration
 
-Add the module to the `modules` array in your MagicMirror `config.js` file:
+Add MMM-LiveStats to the `modules` array in `config.js`:
 
 ```javascript
 {
-  module: "MMM-WNBAFeverStats",
+  module: "MMM-LiveStats",
   position: "top_left",
   config: {
-    favoriteTeamId: "ind", // ESPN identifier for the Indiana Fever
-    favoriteTeamDisplayName: "Indiana Fever",
-    headerText: "Indiana Fever Live Stats",
-    updateInterval: 5 * 60 * 1000, // 5 minutes
+    league: "ncaa_mbb", // or "wnba"
+    team: {
+      id: "282", // Indiana State Sycamores by default
+      displayName: "Indiana State Sycamores",
+      shortDisplayName: "Indiana State"
+    },
+    updateInterval: 5 * 60 * 1000,
     maxUpcoming: 3
   }
 }
@@ -52,27 +50,43 @@ Add the module to the `modules` array in your MagicMirror `config.js` file:
 
 | Option | Type | Default | Description |
 | ------ | ---- | ------- | ----------- |
-| `favoriteTeamId` | `string` | `"ind"` | Team identifier used by the ESPN API. The default is the Indiana Fever. |
-| `favoriteTeamDisplayName` | `string` | `"Indiana Fever"` | Friendly team name used within the UI. |
-| `headerText` | `string` | `"Indiana Fever Live Stats"` | Custom header text displayed by MagicMirror². |
-| `updateInterval` | `number` | `300000` | Refresh interval in milliseconds. Minimum enforced interval is 60 seconds. |
-| `maxUpcoming` | `number` | `3` | Maximum number of upcoming games to show when there is no live game. |
+| `league` | `string` | `"ncaa_mbb"` | Determines which league to display. Supported values: `"ncaa_mbb"` for NCAA men's basketball and `"wnba"` for the WNBA. Only one league can be active at a time. |
+| `team` | `object` | `{ id: "282", displayName: "Indiana State Sycamores", shortDisplayName: "Indiana State" }` | Helper object that seeds the favorite team information. Values supplied here populate `favoriteTeamId`, `favoriteTeamDisplayName`, and `favoriteTeamShortDisplayName`. |
+| `favoriteTeamId` | `string` | League-specific default | Overrides the team ID used in API calls. When omitted, the module falls back to `team.id` and then the league default (`282` for NCAA, `ind` for WNBA). |
+| `favoriteTeamDisplayName` | `string` | League-specific default | Overrides the friendly team name shown in the UI. |
+| `favoriteTeamShortDisplayName` | `string` | League-specific default | Optional shorter label used in compact areas such as headings. |
+| `headerText` | `string` | `<Team Name> Live Stats` | Custom text displayed in the MagicMirror module header. When omitted the module builds a header from the favorite team name. |
+| `updateInterval` | `number` | `300000` | Polling frequency in milliseconds. The module enforces a minimum interval of 60 seconds. |
+| `maxUpcoming` | `number` | `3` | Number of upcoming games to display (minimum of 1). |
+
+### Switching Teams
+
+Set `config.league` and the associated team identifiers to follow a different school or franchise. The ESPN endpoints expect the identifiers used on `espn.com`. Some common examples:
+
+| League | Team | Identifier |
+| ------ | ---- | ---------- |
+| NCAA Men's Basketball | Indiana State Sycamores | `282` |
+| NCAA Men's Basketball | Duke Blue Devils | `150` |
+| NCAA Men's Basketball | Kansas Jayhawks | `2305` |
+| WNBA | Indiana Fever | `ind` |
+| WNBA | Las Vegas Aces | `lv` |
+| WNBA | New York Liberty | `ny` |
+
+When you supply a `team` helper object the module automatically pulls logos and season records from ESPN and adapts the header text. You can override any piece individually by setting the related option (`favoriteTeamId`, `favoriteTeamDisplayName`, etc.).
 
 ## Data Sources
 
-All statistics and schedule information are fetched from the ESPN public WNBA endpoints:
+MMM-LiveStats uses public ESPN endpoints—no API key is required:
 
-- `https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/{teamId}/schedule`
-- `https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/summary?event={eventId}`
+- NCAA Men's Basketball: `https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/teams/{teamId}/schedule`
+- WNBA: `https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/{teamId}/schedule`
+- Game summaries (both leagues): `https://site.api.espn.com/apis/site/v2/sports/basketball/{leaguePath}/summary?event={eventId}`
 
-The module gracefully handles network or data errors by showing an error message in the MagicMirror² interface.
+Replace `{leaguePath}` with `mens-college-basketball` or `wnba` to match the active league.
 
-## Development Notes
-
-- The Node helper caches the module configuration and polls the ESPN API at the configured interval.
-- Player statistics are dynamically mapped based on the label names provided by the API so new fields can be added in the future with minimal changes.
-- Upcoming game entries show whether the Fever are home (`vs`) or away (`@`) and include the scheduled tip time using the MagicMirror host locale.
+The module gracefully handles data or network errors by displaying a readable message in the MagicMirror interface.
 
 ## License
 
 MIT – see the [LICENSE](LICENSE) file for details.
+

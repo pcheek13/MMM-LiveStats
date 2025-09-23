@@ -1,15 +1,16 @@
 {
-  "name": "mmm-wnbafeverstats",
-  "version": "1.0.0",
-  "description": "MagicMirror² module that displays live Indiana Fever stats and upcoming games for the WNBA.",
-  "main": "MMM-WNBAFeverStats.js",
+  "name": "mmm-livestats",
+  "version": "1.1.0",
+  "description": "MagicMirror² module for live NCAA men's basketball or WNBA stats with upcoming schedules and team logos.",
+  "main": "MMM_LiveStats.js",
   "keywords": [
     "MagicMirror",
     "MagicMirror2",
     "WNBA",
-    "Indiana Fever",
+    "NCAA",
     "basketball",
-    "module"
+    "module",
+    "stats"
   ],
   "author": "",
   "license": "MIT",
