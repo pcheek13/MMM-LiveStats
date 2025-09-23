@@ -7,27 +7,27 @@ MagicMirror² module that keeps WNBA fans up to date with live player statistics
 - Live game detection powered by the public ESPN WNBA API.
 - Animated live game indicator that pulses whenever your team is playing.
 - Player level stat lines for points, rebounds, assists, and steals.
-- Automatic scoreboard with opponent, venue, and current game clock description.
-- Upcoming schedule list that always shows the next three matchups, even during live games.
+- Automatic scoreboard with full-color team logos, opponent info, venue, and current game clock description.
+- Favorite team crest and current season record featured at the top of the module.
+- Upcoming schedule list that always shows the next three matchups, complete with opponent logos, even during live games.
 - Configurable favorite team identifier, title text, and update interval.
 - Optional team helper object that makes it easy to switch the module to any other WNBA franchise.
 
 ## Installation
 
-1. Clone the module straight into your MagicMirror² `modules` directory and install its dependencies:
+Copy and paste the commands below on your MagicMirror² host (including Raspberry Pi OS on a Raspberry Pi 5) to clone the repository and install its dependencies:
 
-   ```bash
-   cd ~/MagicMirror/modules && \
-   git clone https://github.com/pcheek13/MMM-WNBAFeverStats && \
-   cd MMM-WNBAFeverStats && \
-   npm install
-   ```
+```bash
+cd ~/MagicMirror/modules && \
+  git clone https://github.com/pcheek13/MMM-WNBAFeverStats && \
+  cd MMM-WNBAFeverStats && \
+  npm install
+```
 
-   > **Note:** The module depends on the public ESPN API. Depending on your network setup you may need to allow outbound HTTPS requests for the MagicMirror² host.
+> **Note:** The module depends on the public ESPN API. Depending on your network setup you may need to allow outbound HTTPS requests for the MagicMirror² host.
 
-   The one-line command above is ready for Raspberry Pi OS on a Raspberry Pi 5 or any other Linux system hosting MagicMirror².
 
-2. Configure the module in `config/config.js` as shown below.
+After installation, configure the module in `config/config.js` as shown below.
 
 ## Configuration
 
@@ -55,7 +55,7 @@ Add the module to the `modules` array in your MagicMirror `config.js` file:
 
 | Option | Type | Default | Description |
 | ------ | ---- | ------- | ----------- |
-| `team` | `object` | `{ id: "ind", displayName: "Indiana Fever" }` | Optional helper object that lets you define both the team schedule identifier (`team.id`) and a friendly name (`team.displayName`). Values supplied here automatically populate the `favoriteTeamId`, `favoriteTeamDisplayName`, and `headerText` defaults. |
+| `team` | `object` | `{ id: "ind", displayName: "Indiana Fever" }` | Optional helper object that lets you define both the team schedule identifier (`team.id`) and a friendly name (`team.displayName`). Values supplied here automatically populate the `favoriteTeamId`, `favoriteTeamDisplayName`, and `headerText` defaults, and the module will pull the appropriate logo and record for your favorite franchise. |
 | `favoriteTeamId` | `string` | `"ind"` | Team identifier used by the ESPN API. The default is the Indiana Fever. |
 | `favoriteTeamDisplayName` | `string` | `"Indiana Fever"` | Friendly team name used within the UI. |
 | `headerText` | `string` | `"Indiana Fever Live Stats"` | Custom header text displayed by MagicMirror². |
@@ -96,7 +96,7 @@ The ESPN endpoints are publicly accessible—no API key is required. The module 
 
 - The Node helper caches the module configuration and polls the ESPN API at the configured interval.
 - Player statistics are dynamically mapped based on the label names provided by the API so new fields can be added in the future with minimal changes.
-- Upcoming game entries show whether your team is home (`vs`) or away (`@`) and include the scheduled tip time using the MagicMirror host locale.
+- Upcoming game entries show whether your team is home (`vs`) or away (`@`), include opponent logos, and display the scheduled tip time using the MagicMirror host locale.
 
 ## License
 

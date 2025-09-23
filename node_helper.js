@@ -43,7 +43,10 @@ module.exports = NodeHelper.create({
 
     try {
       const scheduleUrl = `https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/${this.config.favoriteTeamId}/schedule`;
-      const schedule = await this.fetchJson(scheduleUrl);
+      const teamInfoPromise = this.fetchTeamInfo(this.config.favoriteTeamId).catch(() => null);
+      const schedulePromise = this.fetchJson(scheduleUrl);
+
+      const [favoriteTeam, schedule] = await Promise.all([teamInfoPromise, schedulePromise]);
       const events = Array.isArray(schedule.events) ? schedule.events : [];
 
       const now = new Date();
@@ -76,10 +79,11 @@ module.exports = NodeHelper.create({
 
       let liveGame = null;
       if (liveEvent) {
-        liveGame = await this.buildLiveGame(liveEvent);
+        liveGame = await this.buildLiveGame(liveEvent, favoriteTeam);
       }
 
       this.sendSocketNotification("GAME_DATA", {
+        favoriteTeam,
         liveGame,
         upcomingGames: formattedUpcoming
       });
@@ -88,7 +92,7 @@ module.exports = NodeHelper.create({
     }
   },
 
-  async buildLiveGame(event) {
+  async buildLiveGame(event, favoriteTeamInfo) {
     const competition = event.competitions && event.competitions[0];
     if (!competition) {
       return null;
@@ -108,9 +112,8 @@ module.exports = NodeHelper.create({
         || (event.status && event.status.type && event.status.type.detail)
         || "Live",
       startTime: event.date,
-      teamScore: favorite && favorite.score ? favorite.score : "0",
-      opponentScore: opponent && opponent.score ? opponent.score : "0",
-      opponent: opponent && opponent.team ? (opponent.team.displayName || opponent.team.shortDisplayName || opponent.team.name) : "Opponent",
+      favorite: this.mapCompetitorTeam(favorite, favoriteTeamInfo),
+      opponent: this.mapCompetitorTeam(opponent),
       venue: venue || "",
       players
     };
@@ -185,6 +188,7 @@ module.exports = NodeHelper.create({
       id: event.id,
       date: event.date,
       opponent: opponent && opponent.team ? (opponent.team.displayName || opponent.team.shortDisplayName || opponent.team.name) : "Opponent",
+      opponentLogo: this.extractLogo(opponent && opponent.team && opponent.team.logos),
       venue: venue || "",
       isHome: favorite ? favorite.homeAway === "home" : false
     };
@@ -241,6 +245,119 @@ module.exports = NodeHelper.create({
     normalized.maxUpcoming = upcomingLimit;
 
     return normalized;
+  },
+
+  async fetchTeamInfo(teamId) {
+    if (!teamId) {
+      return null;
+    }
+
+    const url = `https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/${teamId}`;
+    const response = await this.fetchJson(url);
+    const team = response && (response.team || response);
+    if (!team) {
+      return null;
+    }
+
+    const logo = this.extractLogo(team.logos);
+    const record = this.extractRecord(team.record);
+
+    return {
+      id: team.id || team.slug || team.abbreviation || teamId,
+      displayName: team.displayName || team.name || teamId,
+      shortDisplayName: team.shortDisplayName || team.nickname || team.displayName || teamId,
+      logos: {
+        primary: logo,
+        all: Array.isArray(team.logos) ? team.logos : []
+      },
+      record
+    };
+  },
+
+  mapCompetitorTeam(competitor, fallbackInfo) {
+    if (!competitor) {
+      if (!fallbackInfo) {
+        return null;
+      }
+
+      return {
+        id: fallbackInfo.id,
+        displayName: fallbackInfo.displayName,
+        shortDisplayName: fallbackInfo.shortDisplayName,
+        score: "0",
+        logo: fallbackInfo.logos && fallbackInfo.logos.primary,
+        record: fallbackInfo.record || null
+      };
+    }
+
+    const team = competitor.team || {};
+    const logo = this.extractLogo(team.logos) || (fallbackInfo && fallbackInfo.logos && fallbackInfo.logos.primary) || "";
+
+    return {
+      id: team.id || (fallbackInfo && fallbackInfo.id) || null,
+      displayName: team.displayName || team.shortDisplayName || team.name || (fallbackInfo && fallbackInfo.displayName) || "",
+      shortDisplayName: team.shortDisplayName || team.abbreviation || (fallbackInfo && fallbackInfo.shortDisplayName) || "",
+      score: competitor.score || "0",
+      logo,
+      record: this.extractRecord(team.record) || (fallbackInfo && fallbackInfo.record) || null
+    };
+  },
+
+  extractLogo(logos) {
+    if (!Array.isArray(logos) || logos.length === 0) {
+      return "";
+    }
+
+    const prioritized = logos.find((logo) => Array.isArray(logo.rel) && (logo.rel.includes("full") || logo.rel.includes("primary")));
+    const selected = prioritized || logos[0];
+    return selected && selected.href ? selected.href : "";
+  },
+
+  extractRecord(recordData) {
+    if (!recordData || !Array.isArray(recordData.items)) {
+      return null;
+    }
+
+    const overall = recordData.items.find((item) => item.type === "total" || item.summary) || recordData.items[0];
+    if (!overall) {
+      return null;
+    }
+
+    let wins;
+    let losses;
+
+    if (Array.isArray(overall.stats)) {
+      overall.stats.forEach((stat) => {
+        if (!stat || typeof stat.value === "undefined") {
+          return;
+        }
+
+        if (stat.name === "wins") {
+          wins = parseInt(stat.value, 10);
+        } else if (stat.name === "losses") {
+          losses = parseInt(stat.value, 10);
+        }
+      });
+    }
+
+    if (typeof wins === "undefined" || typeof losses === "undefined") {
+      const summary = overall.summary || "";
+      const match = summary.match(/(\d+)[-–](\d+)/);
+      if (match) {
+        wins = parseInt(match[1], 10);
+        losses = parseInt(match[2], 10);
+      }
+    }
+
+    if (typeof wins === "undefined" && typeof losses === "undefined") {
+      return null;
+    }
+
+    return {
+      wins: typeof wins === "number" ? wins : null,
+      losses: typeof losses === "number" ? losses : null,
+      summary: overall.summary || (typeof wins === "number" && typeof losses === "number" ? `${wins}-${losses}` : "")
+    };
   },
 
   async fetchJson(url) {

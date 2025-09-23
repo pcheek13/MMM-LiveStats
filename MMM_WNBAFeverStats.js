@@ -16,6 +16,7 @@ Module.register("MMM-WNBAFeverStats", {
     this.error = null;
     this.liveGame = null;
     this.upcomingGames = [];
+    this.favoriteTeam = null;
     this.sendSocketNotification("CONFIG", this.config);
   },
 
@@ -31,12 +32,28 @@ Module.register("MMM-WNBAFeverStats", {
     if (notification === "GAME_DATA") {
       this.error = null;
       this.loaded = true;
+      const fallbackTeam =
+        this.favoriteTeam || {
+          displayName: this.config.favoriteTeamDisplayName,
+          logos: { primary: "" },
+          record: null
+        };
+      const favoriteTeam = payload.favoriteTeam || fallbackTeam;
+      this.favoriteTeam = {
+        displayName: favoriteTeam.displayName || this.config.favoriteTeamDisplayName,
+        logos: favoriteTeam.logos || fallbackTeam.logos,
+        record:
+          typeof favoriteTeam.record !== "undefined"
+            ? favoriteTeam.record
+            : fallbackTeam.record
+      };
       this.liveGame = payload.liveGame;
       this.upcomingGames = payload.upcomingGames;
       this.updateDom(this.config.animationSpeed);
     } else if (notification === "GAME_ERROR") {
       this.error = payload.message;
       this.loaded = true;
+      this.favoriteTeam = null;
       this.liveGame = null;
       this.upcomingGames = [];
       this.updateDom(this.config.animationSpeed);
@@ -55,6 +72,10 @@ Module.register("MMM-WNBAFeverStats", {
     if (this.error) {
       wrapper.innerHTML = `<div class="error">${this.translate("ERROR")}: ${this.error}</div>`;
       return wrapper;
+    }
+
+    if (this.favoriteTeam) {
+      wrapper.appendChild(this.renderFavoriteHeader());
     }
 
     if (this.liveGame) {
@@ -77,9 +98,16 @@ Module.register("MMM-WNBAFeverStats", {
 
     const title = document.createElement("div");
     title.className = "section-title";
-    const matchup = `${this.config.favoriteTeamDisplayName} ${this.liveGame.teamScore} - ${this.liveGame.opponentScore} ${this.liveGame.opponent}`;
-    title.innerHTML = `<span class="status">${this.liveGame.status}</span> <span class="matchup">${matchup}</span>`;
+    const favoriteName = this.liveGame.favorite && (this.liveGame.favorite.displayName || this.liveGame.favorite.shortDisplayName)
+      ? this.liveGame.favorite.displayName || this.liveGame.favorite.shortDisplayName
+      : this.config.favoriteTeamDisplayName;
+    const opponentName = this.liveGame.opponent && (this.liveGame.opponent.displayName || this.liveGame.opponent.shortDisplayName)
+      ? this.liveGame.opponent.displayName || this.liveGame.opponent.shortDisplayName
+      : "Opponent";
+    title.innerHTML = `<span class="status">${this.liveGame.status}</span> <span class="matchup">${favoriteName} vs ${opponentName}</span>`;
     container.appendChild(title);
+
+    container.appendChild(this.renderScoreboard());
 
     if (this.liveGame.venue) {
       const venue = document.createElement("div");
@@ -170,14 +198,30 @@ Module.register("MMM-WNBAFeverStats", {
     } else {
       games.forEach((game) => {
         const li = document.createElement("li");
+        li.className = "upcoming-item";
+
         const prefix = game.isHome ? "vs" : "@";
-        li.innerHTML = `<span class="opponent">${prefix} ${game.opponent}</span><span class="datetime">${this.formatDateTime(game.date)}</span>`;
+
+        if (game.opponentLogo) {
+          const logo = document.createElement("img");
+          logo.className = "team-logo upcoming-logo";
+          logo.src = game.opponentLogo;
+          logo.alt = `${game.opponent} logo`;
+          li.appendChild(logo);
+        }
+
+        const textWrapper = document.createElement("div");
+        textWrapper.className = "upcoming-text";
+        textWrapper.innerHTML = `<span class="opponent">${prefix} ${game.opponent}</span><span class="datetime">${this.formatDateTime(game.date)}</span>`;
+        li.appendChild(textWrapper);
+
         if (game.venue) {
           const venue = document.createElement("div");
           venue.className = "venue";
           venue.innerText = game.venue;
           li.appendChild(venue);
         }
+
         list.appendChild(li);
       });
     }
@@ -185,6 +229,107 @@ Module.register("MMM-WNBAFeverStats", {
     container.appendChild(list);
     return container;
   },
+
+
+  renderFavoriteHeader() {
+    const container = document.createElement("div");
+    container.className = "favorite-team";
+
+    const logoUrl = this.getLogoUrl(this.favoriteTeam && this.favoriteTeam.logos && this.favoriteTeam.logos.primary);
+    if (logoUrl) {
+      const logo = document.createElement("img");
+      logo.className = "team-logo favorite-logo";
+      logo.src = logoUrl;
+      logo.alt = `${this.favoriteTeam.displayName} logo`;
+      container.appendChild(logo);
+    }
+
+    const text = document.createElement("div");
+    text.className = "favorite-team-text";
+
+    const name = document.createElement("div");
+    name.className = "favorite-team-name";
+    name.innerText = this.favoriteTeam.displayName || this.config.favoriteTeamDisplayName;
+    text.appendChild(name);
+
+    const record = this.favoriteTeam.record || null;
+    const recordEl = document.createElement("div");
+    recordEl.className = "favorite-team-record";
+    const wins = record && typeof record.wins === "number" ? record.wins : null;
+    const losses = record && typeof record.losses === "number" ? record.losses : null;
+    const summary = record && record.summary ? record.summary : "";
+    const label = wins !== null && losses !== null ? `${wins}-${losses}` : summary || "--";
+    recordEl.innerText = `Record: ${label}`;
+    text.appendChild(recordEl);
+
+    container.appendChild(text);
+
+    return container;
+  },
+
+  renderScoreboard() {
+    const scoreboard = document.createElement("div");
+    scoreboard.className = "scoreboard";
+
+    scoreboard.appendChild(this.renderScoreboardTeam(this.liveGame.favorite, true));
+
+    const status = document.createElement("div");
+    status.className = "scoreboard-status";
+    status.innerText = this.liveGame.status;
+    scoreboard.appendChild(status);
+
+    scoreboard.appendChild(this.renderScoreboardTeam(this.liveGame.opponent, false));
+
+    return scoreboard;
+  },
+
+  renderScoreboardTeam(team, isFavorite) {
+    const container = document.createElement("div");
+    container.className = `scoreboard-team ${isFavorite ? "favorite" : "opponent"}`;
+
+    const logoUrl = this.getLogoUrl(team && team.logo);
+    if (logoUrl) {
+      const logo = document.createElement("img");
+      logo.className = "team-logo scoreboard-logo";
+      logo.src = logoUrl;
+      logo.alt = `${team && (team.displayName || team.shortDisplayName || "Team")} logo`;
+      container.appendChild(logo);
+    }
+
+    const text = document.createElement("div");
+    text.className = "scoreboard-text";
+
+    const name = document.createElement("div");
+    name.className = "team-name";
+    name.innerText = team && (team.shortDisplayName || team.displayName) ? (team.shortDisplayName || team.displayName) : "Team";
+    text.appendChild(name);
+
+    const score = document.createElement("div");
+    score.className = "team-score";
+    score.innerText = team && team.score ? team.score : "0";
+    text.appendChild(score);
+
+    container.appendChild(text);
+
+    return container;
+  },
+
+  getLogoUrl(value) {
+    if (!value) {
+      return "";
+    }
+
+    if (typeof value === "string") {
+      return value;
+    }
+
+    if (value && value.href) {
+      return value.href;
+    }
+
+    return "";
+  },
+
 
   normalizeConfig() {
     const teamConfig = this.config.team || {};
