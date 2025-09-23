@@ -37,6 +37,41 @@
   color: #ccc;
 }
 
+.mmm-live-stats .league-switch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.mmm-live-stats .league-switch-label {
+  font-size: 0.9em;
+  color: #aaa;
+}
+
+.mmm-live-stats .league-switch-button {
+  align-self: flex-start;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1976d2, #29b6f6);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mmm-live-stats .league-switch-button:focus,
+.mmm-live-stats .league-switch-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(41, 182, 246, 0.35);
+}
+
+.mmm-live-stats .league-switch-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(25, 118, 210, 0.35);
+}
+
 .mmm-live-stats .scoreboard {
   display: flex;
   align-items: center;

@@ -11,6 +11,15 @@ const LEAGUE_SETTINGS = {
       shortDisplayName: "Indiana State"
     }
   },
+  nba: {
+    name: "NBA",
+    sportPath: "basketball/nba",
+    defaultTeam: {
+      id: "ind",
+      displayName: "Indiana Pacers",
+      shortDisplayName: "Pacers"
+    }
+  },
   wnba: {
     name: "WNBA",
     sportPath: "basketball/wnba",
@@ -23,6 +32,60 @@ const LEAGUE_SETTINGS = {
       lv: ["lva", "las vegas aces", "aces"],
       ny: ["nya", "nyl", "new york liberty"],
       la: ["la", "lasparks", "los angeles sparks"]
+    }
+  }
+};
+
+const TEAM_PRESETS = {
+  ncaa_mbb: {
+    indiana_state: {
+      id: "282",
+      displayName: "Indiana State Sycamores",
+      shortDisplayName: "Indiana State"
+    },
+    purdue: {
+      id: "2509",
+      displayName: "Purdue Boilermakers",
+      shortDisplayName: "Purdue"
+    },
+    kansas: {
+      id: "2305",
+      displayName: "Kansas Jayhawks",
+      shortDisplayName: "Kansas"
+    }
+  },
+  nba: {
+    indiana_pacers: {
+      id: "ind",
+      displayName: "Indiana Pacers",
+      shortDisplayName: "Pacers"
+    },
+    denver_nuggets: {
+      id: "den",
+      displayName: "Denver Nuggets",
+      shortDisplayName: "Nuggets"
+    },
+    boston_celtics: {
+      id: "bos",
+      displayName: "Boston Celtics",
+      shortDisplayName: "Celtics"
+    }
+  },
+  wnba: {
+    indiana_fever: {
+      id: "ind",
+      displayName: "Indiana Fever",
+      shortDisplayName: "Indiana Fever"
+    },
+    las_vegas_aces: {
+      id: "lv",
+      displayName: "Las Vegas Aces",
+      shortDisplayName: "Aces"
+    },
+    new_york_liberty: {
+      id: "ny",
+      displayName: "New York Liberty",
+      shortDisplayName: "Liberty"
     }
   }
 };
@@ -119,7 +182,9 @@ module.exports = NodeHelper.create({
       this.sendSocketNotification("GAME_ERROR", { message: error.message });
     }
   },
-  {
+
+  // NOTE: The live-game builder follows `fetchGameData` directly; keep this method
+  // declaration adjacent so there isn't an extra block (`{`) inserted between them.
   async buildLiveGame(event, favoriteTeam) {
     const competition = event.competitions && event.competitions[0];
     if (!competition) {
@@ -455,7 +520,11 @@ module.exports = NodeHelper.create({
     normalized.sportPath = league.sportPath;
     normalized.apiBase = `https://site.api.espn.com/apis/site/v2/sports/${league.sportPath}`;
 
-    const teamConfig = normalized.team || {};
+    const presetTeam = this.resolveTeamPreset(configuredLeague, normalized.teamPreset);
+    const teamConfig = (presetTeam && presetTeam.team) || normalized.team || {};
+    if (presetTeam && presetTeam.key) {
+      normalized.teamPreset = presetTeam.key;
+    }
     const defaultTeam = league.defaultTeam || {};
 
     if (!normalized.favoriteTeamId) {
@@ -474,7 +543,27 @@ module.exports = NodeHelper.create({
     normalized.maxUpcoming = Math.max(parseInt(normalized.maxUpcoming, 10) || 3, 1);
     normalized.updateInterval = Math.max(parseInt(normalized.updateInterval, 10) || 5 * 60 * 1000, 60 * 1000);
 
+    normalized.team = teamConfig;
+
     return normalized;
+  },
+
+  resolveTeamPreset(league, presetKey) {
+    if (!presetKey) {
+      return null;
+    }
+
+    const normalizedKey = String(presetKey)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "");
+    const presets = TEAM_PRESETS[league];
+    if (!presets) {
+      return null;
+    }
+
+    const entry = Object.entries(presets).find(([key]) => key === normalizedKey);
+    return entry ? { key: normalizedKey, team: { ...entry[1] } } : null;
   },
 
   async fetchTeamInfo(teamId) {
