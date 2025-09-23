@@ -119,7 +119,7 @@ module.exports = NodeHelper.create({
       this.sendSocketNotification("GAME_ERROR", { message: error.message });
     }
   },
-
+  {
   async buildLiveGame(event, favoriteTeam) {
     const competition = event.competitions && event.competitions[0];
     if (!competition) {
