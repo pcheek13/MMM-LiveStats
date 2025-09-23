@@ -21,7 +21,7 @@ MagicMirror² module that keeps Indiana Fever fans up to date with live WNBA pla
 2. Clone or copy this repository into the modules folder and install dependencies:
 
    ```bash
-   git clone <your-fork-url> MMM-WNBAFeverStats
+   git clone https://github.com/pcheek13/MMM-WNBAFeverStats
    cd MMM-WNBAFeverStats
    npm install
    ```
