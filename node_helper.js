@@ -52,6 +52,26 @@ const TEAM_PRESETS = {
       id: "2305",
       displayName: "Kansas Jayhawks",
       shortDisplayName: "Kansas"
+    },
+    duke: {
+      id: "150",
+      displayName: "Duke Blue Devils",
+      shortDisplayName: "Duke"
+    },
+    north_carolina: {
+      id: "153",
+      displayName: "North Carolina Tar Heels",
+      shortDisplayName: "North Carolina"
+    },
+    gonzaga: {
+      id: "2250",
+      displayName: "Gonzaga Bulldogs",
+      shortDisplayName: "Gonzaga"
+    },
+    uconn: {
+      id: "41",
+      displayName: "UConn Huskies",
+      shortDisplayName: "UConn"
     }
   },
   nba: {
@@ -60,15 +80,35 @@ const TEAM_PRESETS = {
       displayName: "Indiana Pacers",
       shortDisplayName: "Pacers"
     },
+    boston_celtics: {
+      id: "bos",
+      displayName: "Boston Celtics",
+      shortDisplayName: "Celtics"
+    },
     denver_nuggets: {
       id: "den",
       displayName: "Denver Nuggets",
       shortDisplayName: "Nuggets"
     },
-    boston_celtics: {
-      id: "bos",
-      displayName: "Boston Celtics",
-      shortDisplayName: "Celtics"
+    los_angeles_lakers: {
+      id: "lal",
+      displayName: "Los Angeles Lakers",
+      shortDisplayName: "Lakers"
+    },
+    golden_state_warriors: {
+      id: "gs",
+      displayName: "Golden State Warriors",
+      shortDisplayName: "Warriors"
+    },
+    miami_heat: {
+      id: "mia",
+      displayName: "Miami Heat",
+      shortDisplayName: "Heat"
+    },
+    new_york_knicks: {
+      id: "ny",
+      displayName: "New York Knicks",
+      shortDisplayName: "Knicks"
     }
   },
   wnba: {
@@ -77,15 +117,60 @@ const TEAM_PRESETS = {
       displayName: "Indiana Fever",
       shortDisplayName: "Indiana Fever"
     },
+    atlanta_dream: {
+      id: "atl",
+      displayName: "Atlanta Dream",
+      shortDisplayName: "Dream"
+    },
+    chicago_sky: {
+      id: "chi",
+      displayName: "Chicago Sky",
+      shortDisplayName: "Sky"
+    },
+    connecticut_sun: {
+      id: "conn",
+      displayName: "Connecticut Sun",
+      shortDisplayName: "Sun"
+    },
+    dallas_wings: {
+      id: "dal",
+      displayName: "Dallas Wings",
+      shortDisplayName: "Wings"
+    },
     las_vegas_aces: {
       id: "lv",
       displayName: "Las Vegas Aces",
       shortDisplayName: "Aces"
     },
+    los_angeles_sparks: {
+      id: "la",
+      displayName: "Los Angeles Sparks",
+      shortDisplayName: "Sparks"
+    },
+    minnesota_lynx: {
+      id: "min",
+      displayName: "Minnesota Lynx",
+      shortDisplayName: "Lynx"
+    },
     new_york_liberty: {
       id: "ny",
       displayName: "New York Liberty",
       shortDisplayName: "Liberty"
+    },
+    phoenix_mercury: {
+      id: "phx",
+      displayName: "Phoenix Mercury",
+      shortDisplayName: "Mercury"
+    },
+    seattle_storm: {
+      id: "sea",
+      displayName: "Seattle Storm",
+      shortDisplayName: "Storm"
+    },
+    washington_mystics: {
+      id: "wsh",
+      displayName: "Washington Mystics",
+      shortDisplayName: "Mystics"
     }
   }
 };
@@ -513,39 +598,107 @@ module.exports = NodeHelper.create({
 
   normalizeConfig(config) {
     const normalized = { ...config };
-    const configuredLeague = (normalized.league || "ncaa_mbb").toLowerCase();
-    const league = LEAGUE_SETTINGS[configuredLeague] || LEAGUE_SETTINGS.ncaa_mbb;
+    let configuredLeague = (normalized.league || "wnba").toLowerCase();
+
+    const favorites = this.normalizeLeagueFavorites(normalized.leagueFavorites);
+    const favoriteLeagues = Object.keys(favorites);
+
+    const orderSource =
+      typeof normalized.availableLeagueOrder !== "undefined" ? normalized.availableLeagueOrder : normalized.availableLeagues;
+    const normalizedOrder = this.normalizeLeagueOrder(orderSource, favoriteLeagues);
+    normalized.availableLeagueOrder = normalizedOrder.length ? normalizedOrder : favoriteLeagues;
+    normalized.availableLeagues = [...normalized.availableLeagueOrder];
+
+    if (!favoriteLeagues.includes(configuredLeague)) {
+      configuredLeague = normalized.availableLeagueOrder[0] || favoriteLeagues[0] || configuredLeague;
+    }
 
     normalized.league = configuredLeague;
+
+    const league = LEAGUE_SETTINGS[configuredLeague] || LEAGUE_SETTINGS.wnba;
     normalized.sportPath = league.sportPath;
     normalized.apiBase = `https://site.api.espn.com/apis/site/v2/sports/${league.sportPath}`;
 
-    const presetTeam = this.resolveTeamPreset(configuredLeague, normalized.teamPreset);
-    const teamConfig = (presetTeam && presetTeam.team) || normalized.team || {};
+    normalized.leagueFavorites = Object.fromEntries(
+      Object.entries(favorites).map(([leagueKey, data]) => [leagueKey, data.key])
+    );
+
+    const presetTeam = favorites[configuredLeague] || this.resolveTeamPreset(configuredLeague, normalized.teamPreset);
+    let teamConfig = (presetTeam && presetTeam.team) || {};
+
     if (presetTeam && presetTeam.key) {
       normalized.teamPreset = presetTeam.key;
-    }
-    const defaultTeam = league.defaultTeam || {};
-
-    if (!normalized.favoriteTeamId) {
-      normalized.favoriteTeamId = teamConfig.id || defaultTeam.id;
-    }
-
-    if (!normalized.favoriteTeamDisplayName) {
-      normalized.favoriteTeamDisplayName = teamConfig.displayName || defaultTeam.displayName;
+    } else {
+      normalized.teamPreset = "";
+      if (normalized.team && typeof normalized.team === "object" && Object.keys(normalized.team).length > 0) {
+        teamConfig = { ...normalized.team };
+      }
     }
 
-    if (!normalized.favoriteTeamShortDisplayName) {
-      normalized.favoriteTeamShortDisplayName =
-        teamConfig.shortDisplayName || defaultTeam.shortDisplayName || normalized.favoriteTeamDisplayName;
+    if (!teamConfig || Object.keys(teamConfig).length === 0) {
+      const defaultTeamConfig = league.defaultTeam || {};
+      teamConfig = { ...defaultTeamConfig };
     }
+
+    const fallbackDisplayName = (league.defaultTeam && league.defaultTeam.displayName) || "Favorite Team";
+    const fallbackShortDisplayName = (league.defaultTeam && league.defaultTeam.shortDisplayName) || fallbackDisplayName;
+
+    normalized.favoriteTeamId = teamConfig.id || (league.defaultTeam && league.defaultTeam.id) || normalized.favoriteTeamId;
+    normalized.favoriteTeamDisplayName = teamConfig.displayName || fallbackDisplayName;
+    normalized.favoriteTeamShortDisplayName =
+      teamConfig.shortDisplayName || fallbackShortDisplayName || normalized.favoriteTeamDisplayName;
 
     normalized.maxUpcoming = Math.max(parseInt(normalized.maxUpcoming, 10) || 3, 1);
     normalized.updateInterval = Math.max(parseInt(normalized.updateInterval, 10) || 5 * 60 * 1000, 60 * 1000);
 
-    normalized.team = teamConfig;
+    normalized.team = { ...teamConfig };
 
     return normalized;
+  },
+
+  normalizeLeagueFavorites(favorites) {
+    const result = {};
+    if (favorites && typeof favorites === "object") {
+      Object.entries(favorites).forEach(([leagueKey, presetKey]) => {
+        const normalizedLeague = String(leagueKey || "").toLowerCase();
+        if (!Object.prototype.hasOwnProperty.call(LEAGUE_SETTINGS, normalizedLeague)) {
+          return;
+        }
+        const resolved = this.resolveTeamPreset(normalizedLeague, presetKey);
+        if (resolved) {
+          result[normalizedLeague] = resolved;
+        }
+      });
+    }
+
+    if (Object.keys(result).length === 0) {
+      const fallback = this.resolveTeamPreset("wnba", "indiana_fever");
+      if (fallback) {
+        result.wnba = fallback;
+      }
+    }
+
+    return result;
+  },
+
+  normalizeLeagueOrder(value, allowedLeagues) {
+    const allowedSet = Array.isArray(allowedLeagues) && allowedLeagues.length > 0 ? new Set(allowedLeagues) : null;
+
+    const normalizeList = (list) =>
+      list
+        .map((leagueKey) => String(leagueKey || "").toLowerCase())
+        .filter((leagueKey) => Object.prototype.hasOwnProperty.call(LEAGUE_SETTINGS, leagueKey))
+        .filter((leagueKey) => !allowedSet || allowedSet.has(leagueKey));
+
+    if (typeof value === "string" && value.trim().length > 0) {
+      return normalizeList(value.split(/[;,\s]+/).filter(Boolean));
+    }
+
+    if (Array.isArray(value) && value.length > 0) {
+      return normalizeList(value);
+    }
+
+    return allowedSet ? Array.from(allowedSet) : Object.keys(LEAGUE_SETTINGS);
   },
 
   resolveTeamPreset(league, presetKey) {
