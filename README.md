@@ -26,6 +26,7 @@ cd ~/MagicMirror/modules && \
 
 > **Note:** The module depends on the public ESPN API. Depending on your network setup you may need to allow outbound HTTPS requests for the MagicMirror² host.
 
+
 After installation, configure the module in `config/config.js` as shown below.
 
 ## Configuration

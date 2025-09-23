@@ -230,6 +230,7 @@ Module.register("MMM-WNBAFeverStats", {
     return container;
   },
 
+
   renderFavoriteHeader() {
     const container = document.createElement("div");
     container.className = "favorite-team";
@@ -328,6 +329,7 @@ Module.register("MMM-WNBAFeverStats", {
 
     return "";
   },
+
 
   normalizeConfig() {
     const teamConfig = this.config.team || {};
