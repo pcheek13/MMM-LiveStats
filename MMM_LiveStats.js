@@ -592,7 +592,6 @@ Module.register("MMM-LiveStats", {
 
     this.config.team = { ...teamConfig };
 
-
     const upcomingLimit = parseInt(this.config.maxUpcoming, 10);
     this.config.maxUpcoming = Number.isNaN(upcomingLimit) || upcomingLimit < 1 ? this.defaults.maxUpcoming : upcomingLimit;
 

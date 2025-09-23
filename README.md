@@ -66,6 +66,57 @@ Add MMM-LiveStats to the `modules` array in `config.js`:
 | `availableLeagues` | `array` or `string` | Derived from `leagueFavorites` | Controls which leagues appear when cycling with the on-screen button. Accepts an array or a comma/space separated string of league keys. Any entries not present in `leagueFavorites` are ignored. |
 | `enableLeagueSwitch` | `boolean` | `true` | Toggles the on-screen league switch button. Set to `false` to hide it entirely. |
 
+The optional values above stack together so you can start with a preset and override only the pieces you need:
+
+- `teamPreset` fills in `favoriteTeamId`, names, and ESPN pathing for you. As long as you pick a preset that matches the active league, no other identifiers are required.
+- Setting the `team` helper object lets you supply custom IDs and display names when a preset is missing. Any keys you leave out continue to fall back to the preset or league defaults.
+- Direct overrides like `favoriteTeamId` or `headerText` always win last, which makes it easy to fine-tune the UI without abandoning the preset conveniences.
+
+Because each league holds exactly one favorite at a time, the module resolves identifiers in this order: explicit overrides → `team` helper → `teamPreset` → league defaults. This keeps your configuration minimal while still supporting edge cases such as alternate ESPN abbreviations.
+
+### Configuration Examples
+
+**Single-league setup using only a team preset**
+
+```javascript
+{
+  module: "MMM-LiveStats",
+  position: "top_left",
+  config: {
+    league: "ncaa_mbb",
+    leagueFavorites: {
+      ncaa_mbb: "indiana_state"
+    },
+    teamPreset: "indiana_state",
+    enableLeagueSwitch: false
+  }
+}
+```
+
+This configuration keeps the mirror locked on NCAA men's basketball and relies entirely on the preset helper for the Indiana State Sycamores—no manual IDs necessary.
+
+**Multi-league setup with several favorites**
+
+```javascript
+{
+  module: "MMM-LiveStats",
+  position: "top_left",
+  config: {
+    league: "wnba",
+    leagueFavorites: {
+      wnba: "indiana_fever",
+      nba: "indiana_pacers",
+      ncaa_mbb: "indiana_state"
+    },
+    availableLeagues: ["wnba", "nba", "ncaa_mbb"],
+    teamPreset: "indiana_fever",
+    headerText: "Hoops Hub"
+  }
+}
+```
+
+Here the mirror boots into the WNBA but the on-screen switcher can cycle between the Fever, Pacers, and Sycamores. Each entry points to a preset so the module automatically retrieves the correct ESPN identifiers, logos, and records for every league.
+
 ### Switching Teams
 
 Use `leagueFavorites` to declare which teams you care about, then pick your starting league with `config.league`. Each entry should point at a preset helper key so the module can fill in the correct ESPN identifiers. The ESPN endpoints expect the identifiers used on `espn.com`. Some common examples:
