@@ -1,7 +1,7 @@
 {
   "name": "mmm-wnbafeverstats",
   "version": "1.0.0",
-  "description": "MagicMirror² module that displays live Indiana Fever stats and upcoming games for the WNBA.",
+  "description": "MagicMirror² module that displays live WNBA stats and upcoming games for your favorite team.",
   "main": "MMM-WNBAFeverStats.js",
   "keywords": [
     "MagicMirror",
