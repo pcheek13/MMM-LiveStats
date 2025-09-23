@@ -15,7 +15,7 @@ module.exports = NodeHelper.create({
 
   socketNotificationReceived(notification, payload) {
     if (notification === "CONFIG") {
-      this.config = payload;
+      this.config = this.normalizeConfig(payload);
       this.fetchGameData();
       this.scheduleUpdates();
     }
@@ -61,16 +61,18 @@ module.exports = NodeHelper.create({
 
         if (status === "in" && !liveEvent) {
           liveEvent = event;
-        } else if (status === "pre" && eventDate && eventDate >= now) {
+        } else if (eventDate && eventDate >= now && status !== "post" && status !== "in") {
           upcomingEvents.push(event);
         }
       });
 
-    const formattedUpcoming = upcomingEvents
-      .sort((a, b) => new Date(a.date) - new Date(b.date))
-      .slice(0, this.config.maxUpcoming || 3)
-      .map((event) => this.formatUpcoming(event))
-      .filter(Boolean);
+      const upcomingLimit = Math.max(parseInt(this.config.maxUpcoming, 10) || 3, 1);
+
+      const formattedUpcoming = upcomingEvents
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .slice(0, upcomingLimit)
+        .map((event) => this.formatUpcoming(event))
+        .filter(Boolean);
 
       let liveGame = null;
       if (liveEvent) {
@@ -213,6 +215,32 @@ module.exports = NodeHelper.create({
     }
 
     return competitors.find((competitor) => competitor !== favorite) || null;
+  },
+
+  normalizeConfig(config) {
+    const normalized = { ...config };
+    const teamConfig = normalized.team || {};
+
+    if (!normalized.favoriteTeamId && teamConfig.id) {
+      normalized.favoriteTeamId = teamConfig.id;
+    }
+
+    if (!normalized.favoriteTeamDisplayName && teamConfig.displayName) {
+      normalized.favoriteTeamDisplayName = teamConfig.displayName;
+    }
+
+    if (!normalized.favoriteTeamId) {
+      normalized.favoriteTeamId = "ind";
+    }
+
+    if (!normalized.favoriteTeamDisplayName) {
+      normalized.favoriteTeamDisplayName = "Indiana Fever";
+    }
+
+    const upcomingLimit = Math.max(parseInt(normalized.maxUpcoming, 10) || 3, 1);
+    normalized.maxUpcoming = upcomingLimit;
+
+    return normalized;
   },
 
   async fetchJson(url) {

@@ -11,6 +11,7 @@ Module.register("MMM-WNBAFeverStats", {
   },
 
   start() {
+    this.normalizeConfig();
     this.loaded = false;
     this.error = null;
     this.liveGame = null;
@@ -58,8 +59,13 @@ Module.register("MMM-WNBAFeverStats", {
 
     if (this.liveGame) {
       wrapper.appendChild(this.renderLiveGame());
+      wrapper.appendChild(
+        this.renderUpcoming(`Upcoming ${this.config.favoriteTeamDisplayName} matchups:`)
+      );
     } else {
-      wrapper.appendChild(this.renderUpcoming());
+      wrapper.appendChild(
+        this.renderUpcoming(`No live games. Next ${this.config.favoriteTeamDisplayName} matchups:`)
+      );
     }
 
     return wrapper;
@@ -81,6 +87,15 @@ Module.register("MMM-WNBAFeverStats", {
       venue.innerText = `${this.formatDateTime(this.liveGame.startTime)} • ${this.liveGame.venue}`;
       container.appendChild(venue);
     }
+
+    const tableWrapper = document.createElement("div");
+    tableWrapper.className = "stats-table-wrapper";
+
+    const indicator = document.createElement("span");
+    indicator.className = "live-indicator";
+    indicator.setAttribute("aria-label", "Live game in progress");
+    indicator.setAttribute("title", "Live game in progress");
+    tableWrapper.appendChild(indicator);
 
     const table = document.createElement("table");
     table.className = "stats-table";
@@ -125,30 +140,35 @@ Module.register("MMM-WNBAFeverStats", {
     }
 
     table.appendChild(tbody);
-    container.appendChild(table);
+    tableWrapper.appendChild(table);
+    container.appendChild(tableWrapper);
 
     return container;
   },
 
-  renderUpcoming() {
+  renderUpcoming(titleText) {
     const container = document.createElement("div");
     container.className = "upcoming";
 
     const title = document.createElement("div");
     title.className = "section-title";
-    title.innerText = `No live games. Next ${this.config.favoriteTeamDisplayName} matchups:`;
+    title.innerText = titleText || `Next ${this.config.favoriteTeamDisplayName} matchups:`;
     container.appendChild(title);
 
     const list = document.createElement("ul");
     list.className = "upcoming-list";
 
-    if (!this.upcomingGames || this.upcomingGames.length === 0) {
+    const games = Array.isArray(this.upcomingGames)
+      ? this.upcomingGames.slice(0, this.config.maxUpcoming)
+      : [];
+
+    if (games.length === 0) {
       const li = document.createElement("li");
       li.className = "no-data";
       li.innerText = "No upcoming games found.";
       list.appendChild(li);
     } else {
-      this.upcomingGames.slice(0, this.config.maxUpcoming).forEach((game) => {
+      games.forEach((game) => {
         const li = document.createElement("li");
         const prefix = game.isHome ? "vs" : "@";
         li.innerHTML = `<span class="opponent">${prefix} ${game.opponent}</span><span class="datetime">${this.formatDateTime(game.date)}</span>`;
@@ -164,6 +184,34 @@ Module.register("MMM-WNBAFeverStats", {
 
     container.appendChild(list);
     return container;
+  },
+
+  normalizeConfig() {
+    const teamConfig = this.config.team || {};
+
+    if (!this.config.favoriteTeamId) {
+      this.config.favoriteTeamId = teamConfig.id || this.defaults.favoriteTeamId;
+    }
+
+    if (!this.config.favoriteTeamDisplayName) {
+      this.config.favoriteTeamDisplayName = teamConfig.displayName || this.defaults.favoriteTeamDisplayName;
+    }
+
+    const upcomingLimit = parseInt(this.config.maxUpcoming, 10);
+    if (Number.isNaN(upcomingLimit) || upcomingLimit <= 0) {
+      this.config.maxUpcoming = this.defaults.maxUpcoming;
+    } else {
+      this.config.maxUpcoming = upcomingLimit;
+    }
+
+    const defaultHeader = this.defaults.headerText;
+    if (
+      (!this.config.headerText || this.config.headerText === defaultHeader) &&
+      this.config.favoriteTeamDisplayName &&
+      this.config.favoriteTeamDisplayName !== this.defaults.favoriteTeamDisplayName
+    ) {
+      this.config.headerText = `${this.config.favoriteTeamDisplayName} Live Stats`;
+    }
   },
 
   formatDateTime(dateString) {
