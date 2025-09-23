@@ -271,16 +271,35 @@ module.exports = NodeHelper.create({
   // NOTE: The live-game builder follows `fetchGameData` directly; keep this method
   // declaration adjacent so there isn't an extra block (`{`) inserted between them.
   async buildLiveGame(event, favoriteTeam) {
-    const competition = event.competitions && event.competitions[0];
+    const eventCompetition = event.competitions && event.competitions[0];
+
+    const summaryUrl = `${this.config.apiBase}/summary?event=${event.id}`;
+    const summary = await this.fetchJson(summaryUrl);
+
+    const summaryCompetition =
+      summary &&
+      summary.header &&
+      Array.isArray(summary.header.competitions) &&
+      summary.header.competitions.length > 0
+        ? summary.header.competitions[0]
+        : null;
+
+    const competition = summaryCompetition || eventCompetition;
     if (!competition) {
       return null;
     }
 
-    const summaryUrl = `${this.config.apiBase}/summary?event=${event.id}`;
-    const summary = await this.fetchJson(summaryUrl);
     const favorite = this.findFavoriteCompetitor(competition, favoriteTeam);
     const opponent = this.findOpponent(competition, favorite);
-    const venue = competition.venue && (competition.venue.fullName || competition.venue.displayName);
+
+    let venueSource = competition;
+    if (!venueSource || !venueSource.venue) {
+      venueSource = eventCompetition;
+    }
+    const venue =
+      venueSource &&
+      venueSource.venue &&
+      (venueSource.venue.fullName || venueSource.venue.displayName);
 
     const players = this.extractPlayerStats(
       summary.boxscore && summary.boxscore.players,
@@ -289,13 +308,17 @@ module.exports = NodeHelper.create({
       opponent
     );
 
+    const statusSource = summaryCompetition || eventCompetition || event;
+
     return {
       eventId: event.id,
       status:
-        (competition.status && competition.status.type && (competition.status.type.detail || competition.status.type.shortDetail)) ||
+        (statusSource.status &&
+          statusSource.status.type &&
+          (statusSource.status.type.detail || statusSource.status.type.shortDetail)) ||
         (event.status && event.status.type && event.status.type.detail) ||
         "Live",
-      startTime: event.date,
+      startTime: (competition && competition.date) || event.date,
       favorite: this.mapCompetitorTeam(favorite, favoriteTeam),
       opponent: this.mapCompetitorTeam(opponent),
       venue: venue || "",

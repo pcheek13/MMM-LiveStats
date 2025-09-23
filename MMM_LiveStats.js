@@ -309,7 +309,7 @@ Module.register("MMM-LiveStats", {
     indicator.setAttribute("aria-label", "Live game in progress");
     indicator.setAttribute("title", "Live game in progress");
     tableWrapper.appendChild(indicator);
-    
+
     const controls = document.createElement("div");
     controls.className = "stats-controls";
 
