@@ -10,6 +10,7 @@ MMM-LiveStats is a MagicMirror² module that tracks your favorite basketball pro
 - Team crests and color logos for your favorite team and every opponent.
 - Favorite-team banner with medium-sized crest and the current season record.
 - Scoreboard that keeps both teams' scores, names, and logos front and center.
+- On-demand stats toggle that flips the live player table between your team and the opponent with a single tap.
 - Configurable polling interval, module header, team presets, and an optional on-screen league switcher.
 
 ## Installation

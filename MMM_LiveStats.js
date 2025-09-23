@@ -186,6 +186,7 @@ Module.register("MMM-LiveStats", {
     this.liveGame = null;
     this.upcomingGames = [];
     this.favoriteTeam = null;
+    this.activeStatsTeam = "favorite";
     this.availableLeagueOrder = this.config.availableLeagueOrder;
     this.resolvedLeagueFavorites = this.resolvedLeagueFavorites || {};
     this.sendSocketNotification("CONFIG", this.config);
@@ -203,6 +204,7 @@ Module.register("MMM-LiveStats", {
     if (notification === "GAME_DATA") {
       this.error = null;
       this.loaded = true;
+      const previousLiveGame = this.liveGame;
       const fallbackTeam =
         this.favoriteTeam || {
           displayName: this.config.favoriteTeamDisplayName,
@@ -221,6 +223,9 @@ Module.register("MMM-LiveStats", {
             : fallbackTeam.record
       };
       this.liveGame = payload.liveGame;
+      if (!this.liveGame || !previousLiveGame || this.liveGame.eventId !== previousLiveGame.eventId) {
+        this.activeStatsTeam = "favorite";
+      }
       this.upcomingGames = payload.upcomingGames || [];
       this.updateDom(this.config.animationSpeed);
     } else if (notification === "GAME_ERROR") {
@@ -229,6 +234,7 @@ Module.register("MMM-LiveStats", {
       this.favoriteTeam = null;
       this.liveGame = null;
       this.upcomingGames = [];
+      this.activeStatsTeam = "favorite";
       this.updateDom(this.config.animationSpeed);
     }
   },
@@ -261,6 +267,7 @@ Module.register("MMM-LiveStats", {
         this.renderUpcoming(`Upcoming ${this.config.favoriteTeamShortDisplayName} games:`)
       );
     } else {
+      wrapper.appendChild(this.renderNoLiveGameMessage());
       wrapper.appendChild(
         this.renderUpcoming(`Next ${this.config.favoriteTeamShortDisplayName} games:`)
       );
@@ -302,6 +309,35 @@ Module.register("MMM-LiveStats", {
     indicator.setAttribute("aria-label", "Live game in progress");
     indicator.setAttribute("title", "Live game in progress");
     tableWrapper.appendChild(indicator);
+    
+    const controls = document.createElement("div");
+    controls.className = "stats-controls";
+
+    const activeKey = this.getActiveStatsTeamKey();
+    const activeTeam = this.getLiveGameTeamByKey(activeKey);
+    const activeName = this.getTeamName(activeTeam, activeKey);
+
+    const currentLabel = document.createElement("div");
+    currentLabel.className = "stats-current-team";
+    currentLabel.innerText = `${activeName} player stats`;
+    controls.appendChild(currentLabel);
+
+    if (this.liveGame && this.liveGame.favorite && this.liveGame.opponent) {
+      const nextKey = activeKey === "favorite" ? "opponent" : "favorite";
+      const otherTeam = this.getLiveGameTeamByKey(nextKey);
+      const otherName = this.getTeamName(otherTeam, nextKey);
+      const toggleButton = document.createElement("button");
+      toggleButton.type = "button";
+      toggleButton.className = "stats-toggle-button";
+      toggleButton.innerText = `Show ${otherName} stats`;
+      toggleButton.setAttribute("aria-label", `Show ${otherName} stats`);
+      toggleButton.addEventListener("click", () => {
+        this.toggleLiveStatsTeam();
+      });
+      controls.appendChild(toggleButton);
+    }
+
+    tableWrapper.appendChild(controls);
 
     const table = document.createElement("table");
     table.className = "stats-table";
@@ -317,7 +353,8 @@ Module.register("MMM-LiveStats", {
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
-    (this.liveGame.players || []).forEach((player) => {
+    const players = this.getActiveLivePlayers();
+    players.forEach((player) => {
       const row = document.createElement("tr");
 
       const nameCell = document.createElement("td");
@@ -340,7 +377,8 @@ Module.register("MMM-LiveStats", {
       const cell = document.createElement("td");
       cell.colSpan = 5;
       cell.className = "no-data";
-      cell.innerText = "Live player stats are not currently available.";
+      const activeTeamName = this.getTeamName(activeTeam, activeKey);
+      cell.innerText = `Live player stats are not currently available for ${activeTeamName}.`;
       row.appendChild(cell);
       tbody.appendChild(row);
     }
@@ -456,8 +494,10 @@ Module.register("MMM-LiveStats", {
     const nextLeague = this.getNextLeague();
     const currentName = this.getLeagueName(this.config.league);
     const nextName = this.getLeagueName(nextLeague);
-    const buttonText = nextName && nextName !== currentName ? `Switch to ${nextName}` : "Switch League";
+    const buttonText =
+      nextName && nextName !== currentName ? `Change to ${nextName}` : "Change League";
     button.innerText = buttonText;
+    button.setAttribute("aria-label", buttonText);
     button.addEventListener("click", () => {
       this.cycleLeague();
     });
@@ -470,6 +510,13 @@ Module.register("MMM-LiveStats", {
     container.appendChild(button);
 
     return container;
+  },
+
+  renderNoLiveGameMessage() {
+    const message = document.createElement("div");
+    message.className = "no-live-game";
+    message.innerText = "No live game right now.";
+    return message;
   },
 
   renderScoreboard() {
@@ -519,6 +566,49 @@ Module.register("MMM-LiveStats", {
     container.appendChild(text);
 
     return container;
+  },
+
+  getActiveStatsTeamKey() {
+    return this.activeStatsTeam === "opponent" ? "opponent" : "favorite";
+  },
+
+  getLiveGameTeamByKey(key) {
+    if (!this.liveGame) {
+      return null;
+    }
+
+    if (key === "opponent") {
+      return this.liveGame.opponent || null;
+    }
+
+    return this.liveGame.favorite || null;
+  },
+
+  getTeamName(team, key) {
+    if (team && (team.displayName || team.shortDisplayName)) {
+      return team.displayName || team.shortDisplayName;
+    }
+
+    if (key === "favorite") {
+      return this.config.favoriteTeamDisplayName || "Favorite";
+    }
+
+    return "Opponent";
+  },
+
+  getActiveLivePlayers() {
+    if (!this.liveGame || !this.liveGame.players) {
+      return [];
+    }
+
+    const key = this.getActiveStatsTeamKey();
+    const players = this.liveGame.players[key];
+    return Array.isArray(players) ? players : [];
+  },
+
+  toggleLiveStatsTeam() {
+    this.activeStatsTeam = this.getActiveStatsTeamKey() === "favorite" ? "opponent" : "favorite";
+    this.updateDom(300);
   },
 
   getLogoUrl(value) {

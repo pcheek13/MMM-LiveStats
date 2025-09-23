@@ -282,7 +282,12 @@ module.exports = NodeHelper.create({
     const opponent = this.findOpponent(competition, favorite);
     const venue = competition.venue && (competition.venue.fullName || competition.venue.displayName);
 
-    const players = this.extractPlayerStats(summary.boxscore && summary.boxscore.players, favoriteTeam);
+    const players = this.extractPlayerStats(
+      summary.boxscore && summary.boxscore.players,
+      favoriteTeam,
+      favorite,
+      opponent
+    );
 
     return {
       eventId: event.id,
@@ -298,12 +303,27 @@ module.exports = NodeHelper.create({
     };
   },
 
-  extractPlayerStats(playersData, favoriteTeam) {
+  extractPlayerStats(playersData, favoriteTeamProfile, favoriteCompetitor, opponentCompetitor) {
     if (!Array.isArray(playersData)) {
-      return [];
+      return { favorite: [], opponent: [] };
     }
 
-    const identifiers = this.buildIdentifierSet(favoriteTeam);
+    const favoriteIdentifiers = this.mergeIdentifierSets(
+      this.buildIdentifierSet(favoriteTeamProfile),
+      this.buildCompetitorIdentifierSet(favoriteCompetitor)
+    );
+    const opponentIdentifiers = this.buildCompetitorIdentifierSet(opponentCompetitor);
+
+    return {
+      favorite: this.extractTeamPlayerStats(playersData, favoriteIdentifiers),
+      opponent: this.extractTeamPlayerStats(playersData, opponentIdentifiers)
+    };
+  },
+
+  extractTeamPlayerStats(playersData, identifiers) {
+    if (!identifiers || identifiers.size === 0) {
+      return [];
+    }
 
     const teamEntry = playersData.find((entry) => {
       const team = entry.team || {};
@@ -594,6 +614,69 @@ module.exports = NodeHelper.create({
     }
 
     return identifiers;
+  },
+
+  buildCompetitorIdentifierSet(competitor) {
+    const identifiers = new Set();
+    if (!competitor) {
+      return identifiers;
+    }
+
+    const add = (value) => {
+      if (value === null || typeof value === "undefined") {
+        return;
+      }
+      const normalized = String(value).toLowerCase();
+      if (normalized) {
+        identifiers.add(normalized);
+      }
+    };
+
+    [competitor.id, competitor.uid].forEach(add);
+
+    const team = competitor.team || {};
+    [
+      team.abbreviation,
+      team.shortDisplayName,
+      team.displayName,
+      team.slug,
+      team.id,
+      team.uid,
+      team.name,
+      team.location,
+      team.nickname
+    ].forEach(add);
+
+    if (team.alternateIds) {
+      Object.values(team.alternateIds).forEach(add);
+    }
+
+    if (Array.isArray(team.alternateIdentifiers)) {
+      team.alternateIdentifiers.forEach(add);
+    }
+
+    return identifiers;
+  },
+
+  mergeIdentifierSets(...sets) {
+    const merged = new Set();
+    sets.forEach((set) => {
+      if (!set || typeof set.forEach !== "function") {
+        return;
+      }
+
+      set.forEach((value) => {
+        if (value === null || typeof value === "undefined") {
+          return;
+        }
+        const normalized = String(value).toLowerCase();
+        if (normalized) {
+          merged.add(normalized);
+        }
+      });
+    });
+
+    return merged;
   },
 
   normalizeConfig(config) {
