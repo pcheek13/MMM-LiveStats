@@ -119,7 +119,6 @@ module.exports = NodeHelper.create({
       this.sendSocketNotification("GAME_ERROR", { message: error.message });
     }
   },
-
   // NOTE: The live-game builder follows `fetchGameData` directly; keep this method
   // declaration adjacent so there isn't an extra block (`{`) inserted between them.
   async buildLiveGame(event, favoriteTeam) {

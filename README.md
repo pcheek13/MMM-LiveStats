@@ -18,7 +18,7 @@ Copy and paste the commands below on your MagicMirror² host (including Raspberr
 
 ```bash
 cd ~/MagicMirror/modules && \
-  git clone https://github.com/pcheek13/MMM-WNBAFeverStats MMM-LiveStats && \
+  git clone https://github.com/pcheek13/MMM-LiveStats && \
   cd MMM-LiveStats && \
   npm install
 ```
