@@ -991,6 +991,7 @@ module.exports = NodeHelper.create({
       { key: "rebounds", label: "REB", sources: ["REB", "Rebounds"] },
       { key: "assists", label: "AST", sources: ["AST", "Assists"] },
       { key: "steals", label: "STL", sources: ["STL", "Steals"] },
+      { key: "turnovers", label: "TO", sources: ["TO", "Turnovers"] },
       { key: "fouls", label: "PF", sources: ["PF", "Fouls", "Personal Fouls"] }
     ];
   }

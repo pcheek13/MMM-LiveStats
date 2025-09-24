@@ -65,8 +65,8 @@ Add MMM-LiveStats to the `modules` array in `config.js`:
 | `headerText` | `string` | `<Team Name> Live Stats` | Custom text displayed in the MagicMirror module header. When omitted the module builds a header from the favorite team name. |
 | `updateInterval` | `number` | `300000` | Polling frequency in milliseconds. The module enforces a minimum interval of 60 seconds. |
 | `maxUpcoming` | `number` | `3` | Number of upcoming games to display (minimum of 1). |
-| `availableLeagues` | `array` or `string` | Derived from `leagueFavorites` | Controls which leagues appear when cycling with the on-screen button. Accepts an array or a comma/space separated string of league keys. Any entries not present in `leagueFavorites` are ignored. |
-| `enableLeagueSwitch` | `boolean` | `true` | Toggles the on-screen league switch button. Set to `false` to hide it entirely. |
+| `availableLeagues` | `array` or `string` | Derived from `leagueFavorites` | Controls which leagues appear in the on-screen selector. Accepts an array or a comma/space separated string of league keys. Any entries not present in `leagueFavorites` are ignored. |
+| `enableLeagueSwitch` | `boolean` | `true` | Toggles the on-screen league selector. Set to `false` to hide the dropdown entirely. |
 
 The optional values above stack together so you can start with a preset and override only the pieces you need:
 
@@ -117,7 +117,7 @@ This configuration keeps the mirror locked on NCAA men's basketball and relies e
 }
 ```
 
-Here the mirror boots into the WNBA but the on-screen switcher can cycle between the Fever, Pacers, and Sycamores. Each entry points to a preset so the module automatically retrieves the correct ESPN identifiers, logos, and records for every league.
+Here the mirror boots into the WNBA but the on-screen selector lets you jump between the Fever, Pacers, and Sycamores. Each entry points to a preset so the module automatically retrieves the correct ESPN identifiers, logos, and records for every league.
 
 ### Switching Teams
 
@@ -138,11 +138,11 @@ Use `leagueFavorites` to declare which teams you care about, then pick your star
 | NHL | Detroit Red Wings | `det` |
 | NHL | Toronto Maple Leafs | `tor` |
 
-When you supply `leagueFavorites`, the module automatically pulls logos and season records from ESPN for each league you enable. You can override any piece individually by setting `teamPreset`, the `team` helper, or the related explicit options (`favoriteTeamId`, `favoriteTeamDisplayName`, etc.). Leagues without a favorite preset are omitted from the UI so the on-screen switcher only cycles through valid teams.
+When you supply `leagueFavorites`, the module automatically pulls logos and season records from ESPN for each league you enable. You can override any piece individually by setting `teamPreset`, the `team` helper, or the related explicit options (`favoriteTeamId`, `favoriteTeamDisplayName`, etc.). Leagues without a favorite preset are omitted from the UI so the on-screen selector only lists valid teams.
 
 ### Switching Leagues On-Screen
 
-If `enableLeagueSwitch` is true and `availableLeagues` contains at least two entries, the module renders a touch-friendly button on the top-right of the favorite-team banner. Tapping or clicking the button cycles through the configured leagues in order, reloads the module with the appropriate defaults, and immediately fetches fresh data—no need to edit `config.js` when you want to peek at another league.
+If `enableLeagueSwitch` is true and `availableLeagues` contains at least two entries, the module renders a touch-friendly dropdown on the top-right of the favorite-team banner. Picking a league from the selector reloads the module with the appropriate defaults and immediately fetches fresh data—no need to edit `config.js` when you want to peek at another league.
 
 ## Data Sources
 

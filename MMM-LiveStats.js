@@ -344,12 +344,6 @@ Module.register("MMM-LiveStats", {
     const tableWrapper = document.createElement("div");
     tableWrapper.className = "stats-table-wrapper";
 
-    const indicator = document.createElement("span");
-    indicator.className = "live-indicator";
-    indicator.setAttribute("aria-label", "Live game in progress");
-    indicator.setAttribute("title", "Live game in progress");
-    tableWrapper.appendChild(indicator);
-
     const controls = document.createElement("div");
     controls.className = "stats-controls";
 
@@ -498,13 +492,33 @@ Module.register("MMM-LiveStats", {
     const favoriteInfo = document.createElement("div");
     favoriteInfo.className = "favorite-team";
 
-    const logoUrl = this.getLogoUrl(this.favoriteTeam && this.favoriteTeam.logos && this.favoriteTeam.logos.primary);
-    if (logoUrl) {
-      const logo = document.createElement("img");
-      logo.className = "team-logo favorite-logo";
-      logo.src = logoUrl;
-      logo.alt = `${this.favoriteTeam.displayName} logo`;
-      favoriteInfo.appendChild(logo);
+    const favoriteTeamData = this.favoriteTeam || {};
+    const favoriteDisplayName =
+      favoriteTeamData.displayName || this.config.favoriteTeamDisplayName || "Favorite team";
+    const logoUrl = this.getLogoUrl(favoriteTeamData.logos && favoriteTeamData.logos.primary);
+    const shouldShowIndicator = Boolean(this.liveGame);
+    if (logoUrl || shouldShowIndicator) {
+      const logoWrapper = document.createElement("div");
+      logoWrapper.className = "favorite-logo-wrapper";
+
+      if (logoUrl) {
+        const logo = document.createElement("img");
+        logo.className = "team-logo favorite-logo";
+        logo.src = logoUrl;
+        logo.alt = `${favoriteDisplayName} logo`;
+        logoWrapper.appendChild(logo);
+      }
+
+      if (shouldShowIndicator) {
+        const indicator = document.createElement("span");
+        indicator.className = "live-indicator";
+        indicator.setAttribute("aria-label", "Live game in progress");
+        indicator.setAttribute("title", "Live game in progress");
+        logoWrapper.appendChild(indicator);
+      }
+
+      favoriteInfo.appendChild(logoWrapper);
+
     }
 
     const text = document.createElement("div");
@@ -512,10 +526,10 @@ Module.register("MMM-LiveStats", {
 
     const name = document.createElement("div");
     name.className = "favorite-team-name";
-    name.innerText = this.favoriteTeam.displayName || this.config.favoriteTeamDisplayName;
+    name.innerText = favoriteDisplayName;
     text.appendChild(name);
 
-    const record = this.favoriteTeam.record || null;
+    const record = favoriteTeamData.record || null;
     const recordEl = document.createElement("div");
     recordEl.className = "favorite-team-record";
     const wins = record && typeof record.wins === "number" ? record.wins : null;
@@ -540,21 +554,35 @@ Module.register("MMM-LiveStats", {
     const container = document.createElement("div");
     container.className = "league-switch";
 
-    const button = document.createElement("button");
-    button.className = "league-switch-button";
-    button.type = "button";
-    const nextLeague = this.getNextLeague();
-    const currentName = this.getLeagueName(this.config.league);
-    const nextName = this.getLeagueName(nextLeague);
-    const buttonText =
-      nextName && nextName !== currentName ? `Change to ${nextName}` : "Change League";
-    button.innerText = buttonText;
-    button.setAttribute("aria-label", buttonText);
-    button.addEventListener("click", () => {
-      this.cycleLeague();
+    const selectId = `${this.identifier || "mmm-live-stats"}-league-switch`;
+
+    const label = document.createElement("label");
+    label.className = "league-switch-label";
+    label.setAttribute("for", selectId);
+    label.innerText = "League";
+    container.appendChild(label);
+
+    const select = document.createElement("select");
+    select.className = "league-switch-select";
+    select.id = selectId;
+    select.setAttribute("aria-label", "Select league");
+
+    (Array.isArray(this.availableLeagueOrder) ? this.availableLeagueOrder : []).forEach((league) => {
+      const option = document.createElement("option");
+      option.value = league;
+      option.innerText = this.getLeagueName(league);
+      if (league === this.config.league) {
+        option.selected = true;
+      }
+      select.appendChild(option);
     });
 
-    container.appendChild(button);
+    select.addEventListener("change", (event) => {
+      const value = event.target.value;
+      this.changeLeague(value);
+    });
+
+    container.appendChild(select);
 
     return container;
   },
@@ -654,7 +682,8 @@ Module.register("MMM-LiveStats", {
       return [];
     }
 
-    return players.slice(0, 10);
+    const limit = this.getLivePlayerLimit();
+    return players.slice(0, limit);
   },
 
   getLiveStatColumns() {
@@ -677,8 +706,23 @@ Module.register("MMM-LiveStats", {
       { key: "rebounds", label: "REB" },
       { key: "assists", label: "AST" },
       { key: "steals", label: "STL" },
+      { key: "turnovers", label: "TO" },
       { key: "fouls", label: "PF" }
     ];
+  },
+
+  getLivePlayerLimit() {
+    const league = (this.config.league || "").toLowerCase();
+    if (this.isBasketballLeague(league)) {
+      return 8;
+    }
+
+    return 10;
+  },
+
+  isBasketballLeague(league) {
+    const normalized = (league || "").toLowerCase();
+    return normalized === "nba" || normalized === "wnba" || normalized === "ncaa_mbb";
   },
 
   toggleLiveStatsTeam() {
@@ -877,13 +921,17 @@ Module.register("MMM-LiveStats", {
     return info ? info.name : league;
   },
 
-  cycleLeague() {
-    const nextLeague = this.getNextLeague();
-    if (!nextLeague || nextLeague === this.config.league) {
+  changeLeague(newLeague) {
+    const normalized = String(newLeague || "").toLowerCase();
+    if (!normalized || normalized === this.config.league) {
       return;
     }
 
-    this.config.league = nextLeague;
+    if (!Array.isArray(this.availableLeagueOrder) || !this.availableLeagueOrder.includes(normalized)) {
+      return;
+    }
+
+    this.config.league = normalized;
     this.config.headerText = "";
     this.normalizeConfig();
     this.availableLeagueOrder = this.config.availableLeagueOrder;
@@ -893,8 +941,14 @@ Module.register("MMM-LiveStats", {
     this.favoriteTeam = null;
     this.liveGame = null;
     this.upcomingGames = [];
+    this.activeStatsTeam = "favorite";
     this.updateDom(0);
     this.sendSocketNotification("CONFIG", this.config);
+  },
+
+  cycleLeague() {
+    const nextLeague = this.getNextLeague();
+    this.changeLeague(nextLeague);
   }
 });
 
