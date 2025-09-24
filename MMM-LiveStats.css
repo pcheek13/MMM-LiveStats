@@ -1,0 +1,334 @@
+.mmm-live-stats {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.mmm-live-stats .team-logo {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.mmm-live-stats .favorite-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.mmm-live-stats .favorite-team {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1 1 auto;
+}
+
+.mmm-live-stats .favorite-logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mmm-live-stats .favorite-logo {
+  width: 96px;
+  max-height: 96px;
+}
+
+.mmm-live-stats .favorite-team-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.mmm-live-stats .favorite-team-name {
+  font-size: 1.2em;
+  font-weight: 700;
+}
+
+.mmm-live-stats .favorite-team-record {
+  font-size: 0.9em;
+  color: #ccc;
+}
+
+.mmm-live-stats .league-switch {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.mmm-live-stats .league-switch-label {
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.mmm-live-stats .league-switch-select {
+  background: rgba(17, 25, 40, 0.6);
+  color: #fff;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(41, 182, 246, 0.6);
+  padding: 0.35rem 1.4rem 0.35rem 0.75rem;
+  font-weight: 600;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(41, 182, 246, 0.9) 50%),
+    linear-gradient(135deg, rgba(41, 182, 246, 0.9) 50%, transparent 50%);
+  background-position: calc(100% - 1rem) calc(0.7rem), calc(100% - 0.6rem) calc(0.7rem);
+  background-size: 0.45rem 0.45rem;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.mmm-live-stats .league-switch-select:focus {
+  outline: none;
+  border-color: rgba(144, 202, 249, 0.9);
+  box-shadow: 0 0 0 2px rgba(144, 202, 249, 0.25);
+}
+
+.mmm-live-stats .scoreboard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.mmm-live-stats .scoreboard-team {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 0;
+}
+
+.mmm-live-stats .scoreboard-team.opponent {
+  justify-content: flex-end;
+}
+
+.mmm-live-stats .scoreboard-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.mmm-live-stats .scoreboard-team.opponent .scoreboard-text {
+  align-items: flex-end;
+}
+
+.mmm-live-stats .scoreboard-logo {
+  width: 48px;
+  max-height: 48px;
+}
+
+.mmm-live-stats .scoreboard-status {
+  font-weight: 600;
+  text-align: center;
+  min-width: 5rem;
+  flex: 0 0 auto;
+}
+
+.mmm-live-stats .team-name {
+  font-weight: 600;
+}
+
+.mmm-live-stats .team-score {
+  font-size: 1.25em;
+  font-weight: 700;
+}
+
+.MMM-LiveStats .module-header {
+  font-weight: 700;
+}
+
+.mmm-live-stats .loading,
+.mmm-live-stats .error,
+.mmm-live-stats .no-data {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.mmm-live-stats .section-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.mmm-live-stats .section-title .status {
+  color: #ff4081;
+  margin-right: 0.5rem;
+}
+
+.mmm-live-stats .section-title .matchup {
+  font-weight: 700;
+}
+
+.mmm-live-stats .venue {
+  font-size: 0.9em;
+  color: #aaa;
+  margin-bottom: 0.75rem;
+}
+
+.mmm-live-stats .stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.75rem;
+}
+
+.mmm-live-stats .stats-table-wrapper {
+  position: relative;
+  margin-top: 0.5rem;
+}
+
+.mmm-live-stats .stats-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.mmm-live-stats .stats-current-team {
+  font-size: 0.9em;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.mmm-live-stats .stats-toggle-button {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8em;
+  font-weight: 600;
+  padding: 0.3rem 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.mmm-live-stats .stats-toggle-button:focus,
+.mmm-live-stats .stats-toggle-button:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.6);
+  outline: none;
+}
+
+.mmm-live-stats .stats-toggle-button:active {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.mmm-live-stats .live-indicator {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background-color: #ff1744;
+  box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.45);
+  animation: live-indicator-pulse 3s ease-in-out infinite;
+  flex-shrink: 0;
+  margin-left: 0.35rem;
+}
+
+@keyframes live-indicator-pulse {
+  0% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.55);
+  }
+
+  50% {
+    opacity: 0.35;
+  }
+
+  70% {
+    opacity: 0.2;
+    box-shadow: 0 0 0 6px rgba(255, 23, 68, 0);
+  }
+
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(255, 23, 68, 0);
+  }
+}
+
+.mmm-live-stats .no-live-game {
+  margin: 0.25rem 0 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95em;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mmm-live-stats .no-live-game::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.45);
+}
+
+.mmm-live-stats .stats-table th,
+.mmm-live-stats .stats-table td {
+  padding: 0.25rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mmm-live-stats .stats-table th {
+  font-size: 0.85em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.mmm-live-stats .stats-table td {
+  font-size: 0.95em;
+}
+
+.mmm-live-stats .stats-table td.player {
+  font-weight: 600;
+}
+
+.mmm-live-stats .upcoming-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+}
+
+.mmm-live-stats .upcoming-item:last-child {
+  border-bottom: none;
+}
+
+.mmm-live-stats .upcoming-logo {
+  width: 32px;
+  max-height: 32px;
+}
+
+.mmm-live-stats .upcoming-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.mmm-live-stats .upcoming-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mmm-live-stats .upcoming-list .opponent {
+  font-weight: 600;
+}
+
+.mmm-live-stats .upcoming-list .datetime {
+  margin-top: 0.1rem;
+  color: #ccc;
+}
