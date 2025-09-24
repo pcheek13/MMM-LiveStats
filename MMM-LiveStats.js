@@ -396,7 +396,8 @@ Module.register("MMM-LiveStats", {
 
       const nameCell = document.createElement("td");
       nameCell.className = "player";
-      nameCell.innerText = player.name;
+      const jerseyLabel = player.jersey ? `#${player.jersey}` : "";
+      nameCell.innerText = jerseyLabel ? `${jerseyLabel} ${player.name}` : player.name;
       row.appendChild(nameCell);
 
       statColumns.forEach((column) => {
@@ -518,7 +519,6 @@ Module.register("MMM-LiveStats", {
       }
 
       favoriteInfo.appendChild(logoWrapper);
-
     }
 
     const text = document.createElement("div");

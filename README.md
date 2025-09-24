@@ -10,6 +10,7 @@ MMM-LiveStats is a MagicMirror² module that tracks your favorite team with real
 - Team crests and color logos for your favorite team and every opponent.
 - Favorite-team banner with medium-sized crest and the current season record.
 - Scoreboard that keeps both teams' scores, names, and logos front and center.
+- Player list that shows jersey numbers alongside names for quick identification.
 - On-demand stats toggle that flips the live player table between your team and the opponent with a single tap.
 - Fouls column for basketball leagues and hockey-centric stats (goals, assists, points, shots, PIM) for NHL matchups.
 - Configurable polling interval, module header, team presets, and an optional on-screen league switcher.

@@ -440,6 +440,7 @@ module.exports = NodeHelper.create({
     return statsEntry.athletes.map((athlete) => {
       const statLine = this.mapStats(labels, athlete.stats);
       const info = athlete.athlete || {};
+      const jersey = typeof info.jersey !== "undefined" && info.jersey !== null ? String(info.jersey).trim() : "";
       const stats = {};
 
       (Array.isArray(statColumns) ? statColumns : []).forEach((column) => {
@@ -450,6 +451,7 @@ module.exports = NodeHelper.create({
       return {
         id: info.id,
         name: info.displayName || info.shortName || "Unknown",
+        jersey,
         position: info.position && info.position.abbreviation,
         stats
       };
