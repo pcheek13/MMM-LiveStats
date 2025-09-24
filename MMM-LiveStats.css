@@ -51,7 +51,15 @@
   color: #ccc;
 }
 
-.mmm-live-stats .league-switch {
+.mmm-live-stats .favorite-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+
+.mmm-live-stats .league-switch,
+.mmm-live-stats .team-switch {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -59,14 +67,16 @@
   gap: 0.5rem;
 }
 
-.mmm-live-stats .league-switch-label {
+.mmm-live-stats .league-switch-label,
+.mmm-live-stats .team-switch-label {
   font-size: 0.85em;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: rgba(255, 255, 255, 0.7);
 }
 
-.mmm-live-stats .league-switch-select {
+.mmm-live-stats .league-switch-select,
+.mmm-live-stats .team-switch-select {
   background: rgba(17, 25, 40, 0.6);
   color: #fff;
   border-radius: 0.6rem;
@@ -84,7 +94,8 @@
   cursor: pointer;
 }
 
-.mmm-live-stats .league-switch-select:focus {
+.mmm-live-stats .league-switch-select:focus,
+.mmm-live-stats .team-switch-select:focus {
   outline: none;
   border-color: rgba(144, 202, 249, 0.9);
   box-shadow: 0 0 0 2px rgba(144, 202, 249, 0.25);

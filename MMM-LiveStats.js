@@ -31,6 +31,13 @@ const LEAGUE_DEFAULTS = {
   }
 };
 
+const DEFAULT_TEAM_PRESETS = {
+  ncaa_mbb: "indiana_state",
+  nba: "indiana_pacers",
+  nhl: "chicago_blackhawks",
+  wnba: "indiana_fever"
+};
+
 const TEAM_PRESETS = {
   ncaa_mbb: {
     indiana_state: {
@@ -67,6 +74,46 @@ const TEAM_PRESETS = {
       id: "41",
       displayName: "UConn Huskies",
       shortDisplayName: "UConn"
+    },
+    arizona: {
+      id: "12",
+      displayName: "Arizona Wildcats",
+      shortDisplayName: "Arizona"
+    },
+    kentucky: {
+      id: "96",
+      displayName: "Kentucky Wildcats",
+      shortDisplayName: "Kentucky"
+    },
+    michigan_state: {
+      id: "127",
+      displayName: "Michigan State Spartans",
+      shortDisplayName: "Michigan State"
+    },
+    ucla: {
+      id: "26",
+      displayName: "UCLA Bruins",
+      shortDisplayName: "UCLA"
+    },
+    houston: {
+      id: "248",
+      displayName: "Houston Cougars",
+      shortDisplayName: "Houston"
+    },
+    villanova: {
+      id: "222",
+      displayName: "Villanova Wildcats",
+      shortDisplayName: "Villanova"
+    },
+    baylor: {
+      id: "239",
+      displayName: "Baylor Bears",
+      shortDisplayName: "Baylor"
+    },
+    tennessee: {
+      id: "263",
+      displayName: "Tennessee Volunteers",
+      shortDisplayName: "Tennessee"
     }
   },
   nba: {
@@ -75,35 +122,95 @@ const TEAM_PRESETS = {
       displayName: "Indiana Pacers",
       shortDisplayName: "Pacers"
     },
+    atlanta_hawks: {
+      id: "atl",
+      displayName: "Atlanta Hawks",
+      shortDisplayName: "Hawks"
+    },
     boston_celtics: {
       id: "bos",
       displayName: "Boston Celtics",
       shortDisplayName: "Celtics"
+    },
+    brooklyn_nets: {
+      id: "bkn",
+      displayName: "Brooklyn Nets",
+      shortDisplayName: "Nets"
+    },
+    chicago_bulls: {
+      id: "chi",
+      displayName: "Chicago Bulls",
+      shortDisplayName: "Bulls"
+    },
+    cleveland_cavaliers: {
+      id: "cle",
+      displayName: "Cleveland Cavaliers",
+      shortDisplayName: "Cavaliers"
+    },
+    dallas_mavericks: {
+      id: "dal",
+      displayName: "Dallas Mavericks",
+      shortDisplayName: "Mavericks"
     },
     denver_nuggets: {
       id: "den",
       displayName: "Denver Nuggets",
       shortDisplayName: "Nuggets"
     },
+    golden_state_warriors: {
+      id: "gs",
+      displayName: "Golden State Warriors",
+      shortDisplayName: "Warriors"
+    },
+    los_angeles_clippers: {
+      id: "lac",
+      displayName: "Los Angeles Clippers",
+      shortDisplayName: "Clippers"
+    },
     los_angeles_lakers: {
       id: "lal",
       displayName: "Los Angeles Lakers",
       shortDisplayName: "Lakers"
     },
-    golden_state_warriors: {
-      id: "gs",
-      displayName: "Golden State Warriors",
-      shortDisplayName: "Warriors"
+    memphis_grizzlies: {
+      id: "mem",
+      displayName: "Memphis Grizzlies",
+      shortDisplayName: "Grizzlies"
     },
     miami_heat: {
       id: "mia",
       displayName: "Miami Heat",
       shortDisplayName: "Heat"
     },
+    milwaukee_bucks: {
+      id: "mil",
+      displayName: "Milwaukee Bucks",
+      shortDisplayName: "Bucks"
+    },
+    new_orleans_pelicans: {
+      id: "no",
+      displayName: "New Orleans Pelicans",
+      shortDisplayName: "Pelicans"
+    },
     new_york_knicks: {
       id: "ny",
       displayName: "New York Knicks",
       shortDisplayName: "Knicks"
+    },
+    philadelphia_76ers: {
+      id: "phi",
+      displayName: "Philadelphia 76ers",
+      shortDisplayName: "76ers"
+    },
+    phoenix_suns: {
+      id: "phx",
+      displayName: "Phoenix Suns",
+      shortDisplayName: "Suns"
+    },
+    sacramento_kings: {
+      id: "sac",
+      displayName: "Sacramento Kings",
+      shortDisplayName: "Kings"
     }
   },
   nhl: {
@@ -112,35 +219,66 @@ const TEAM_PRESETS = {
       displayName: "Chicago Blackhawks",
       shortDisplayName: "Blackhawks"
     },
-    detroit_red_wings: {
-      id: "det",
-      displayName: "Detroit Red Wings",
-      shortDisplayName: "Red Wings"
+    boston_bruins: {
+      id: "bos",
+      displayName: "Boston Bruins",
+      shortDisplayName: "Bruins"
     },
     colorado_avalanche: {
       id: "col",
       displayName: "Colorado Avalanche",
       shortDisplayName: "Avalanche"
     },
-    toronto_maple_leafs: {
-      id: "tor",
-      displayName: "Toronto Maple Leafs",
-      shortDisplayName: "Maple Leafs"
-    },
-    boston_bruins: {
-      id: "bos",
-      displayName: "Boston Bruins",
-      shortDisplayName: "Bruins"
+
+    detroit_red_wings: {
+      id: "det",
+      displayName: "Detroit Red Wings",
+      shortDisplayName: "Red Wings"
     },
     edmonton_oilers: {
       id: "edm",
       displayName: "Edmonton Oilers",
       shortDisplayName: "Oilers"
     },
+    los_angeles_kings: {
+      id: "la",
+      displayName: "Los Angeles Kings",
+      shortDisplayName: "Kings"
+    },
+    new_york_rangers: {
+      id: "nyr",
+      displayName: "New York Rangers",
+      shortDisplayName: "Rangers"
+    },
+    pittsburgh_penguins: {
+      id: "pit",
+      displayName: "Pittsburgh Penguins",
+      shortDisplayName: "Penguins"
+    },
+    tampa_bay_lightning: {
+      id: "tbl",
+      displayName: "Tampa Bay Lightning",
+      shortDisplayName: "Lightning"
+    },
+    toronto_maple_leafs: {
+      id: "tor",
+      displayName: "Toronto Maple Leafs",
+      shortDisplayName: "Maple Leafs"
+    },
+    vancouver_canucks: {
+      id: "van",
+      displayName: "Vancouver Canucks",
+      shortDisplayName: "Canucks"
+    },
     vegas_golden_knights: {
       id: "vgk",
       displayName: "Vegas Golden Knights",
       shortDisplayName: "Golden Knights"
+    },
+    washington_capitals: {
+      id: "wsh",
+      displayName: "Washington Capitals",
+      shortDisplayName: "Capitals"
     }
   },
   wnba: {
@@ -209,15 +347,15 @@ const TEAM_PRESETS = {
 
 Module.register("MMM-LiveStats", {
   defaults: {
-    league: "wnba",
+    league: "ncaa_mbb",
     updateInterval: 5 * 60 * 1000,
     animationSpeed: 1000,
     maxUpcoming: 3,
     headerText: "",
     team: {},
-    teamPreset: "indiana_fever",
-    leagueFavorites: {
-      wnba: "indiana_fever"
+    teamPreset: "",
+    teamSelections: {
+      ncaa_mbb: "indiana_state"
     },
     availableLeagues: [],
     enableLeagueSwitch: true
@@ -232,7 +370,7 @@ Module.register("MMM-LiveStats", {
     this.favoriteTeam = null;
     this.activeStatsTeam = "favorite";
     this.availableLeagueOrder = this.config.availableLeagueOrder;
-    this.resolvedLeagueFavorites = this.resolvedLeagueFavorites || {};
+    this.resolvedTeamSelections = this.resolvedTeamSelections || {};
     this.sendSocketNotification("CONFIG", this.config);
   },
 
@@ -543,8 +681,23 @@ Module.register("MMM-LiveStats", {
 
     container.appendChild(favoriteInfo);
 
+    const controls = document.createElement("div");
+    controls.className = "favorite-controls";
+
     if (this.shouldShowLeagueSwitch()) {
-      container.appendChild(this.renderLeagueSwitch());
+      const leagueSwitch = this.renderLeagueSwitch();
+      if (leagueSwitch) {
+        controls.appendChild(leagueSwitch);
+      }
+    }
+
+    const teamSwitch = this.renderTeamSwitch();
+    if (teamSwitch) {
+      controls.appendChild(teamSwitch);
+    }
+
+    if (controls.hasChildNodes()) {
+      container.appendChild(controls);
     }
 
     return container;
@@ -585,6 +738,83 @@ Module.register("MMM-LiveStats", {
     container.appendChild(select);
 
     return container;
+  },
+
+  renderTeamSwitch() {
+    const currentLeague = this.config.league;
+    const options = this.getTeamOptionsForLeague(currentLeague);
+    if (!options.length) {
+      return null;
+    }
+
+    const container = document.createElement("div");
+    container.className = "team-switch";
+
+    const selectId = `${this.identifier || "mmm-live-stats"}-team-switch`;
+
+    const label = document.createElement("label");
+    label.className = "team-switch-label";
+    label.setAttribute("for", selectId);
+    label.innerText = "Team";
+    container.appendChild(label);
+
+    const select = document.createElement("select");
+    select.className = "team-switch-select";
+    select.id = selectId;
+    const leagueName = this.getLeagueName(currentLeague);
+    select.setAttribute("aria-label", `Select ${leagueName} team`);
+
+    const currentKey = this.getCurrentTeamKey(currentLeague);
+
+    options.forEach(({ key, team }) => {
+      const option = document.createElement("option");
+      option.value = key;
+      option.innerText = team.displayName || team.shortDisplayName || key;
+      if (key === currentKey) {
+        option.selected = true;
+      }
+      select.appendChild(option);
+    });
+
+    select.addEventListener("change", (event) => {
+      const value = event.target.value;
+      this.changeTeam(value);
+    });
+
+    container.appendChild(select);
+
+    return container;
+  },
+
+  getTeamOptionsForLeague(league) {
+    const normalized = String(league || "").toLowerCase();
+    const presets = TEAM_PRESETS[normalized];
+    if (!presets) {
+      return [];
+    }
+
+    return Object.entries(presets)
+      .map(([key, team]) => ({ key, team: { ...team } }))
+      .sort((a, b) => {
+        const nameA = (a.team.displayName || a.team.shortDisplayName || a.key || "").toLowerCase();
+        const nameB = (b.team.displayName || b.team.shortDisplayName || b.key || "").toLowerCase();
+        if (nameA < nameB) {
+          return -1;
+        }
+        if (nameA > nameB) {
+          return 1;
+        }
+        return 0;
+      });
+  },
+
+  getCurrentTeamKey(league) {
+    if (!this.config || !this.config.teamSelections) {
+      return "";
+    }
+
+    const normalized = String(league || "").toLowerCase();
+    return this.config.teamSelections[normalized] || "";
   },
 
   renderNoLiveGameMessage() {
@@ -747,31 +977,34 @@ Module.register("MMM-LiveStats", {
   },
 
   normalizeConfig() {
-    let configuredLeague = (this.config.league || this.defaults.league || "wnba").toLowerCase();
-    const favorites = this.normalizeLeagueFavorites(this.config.leagueFavorites);
-    this.resolvedLeagueFavorites = favorites;
+    let configuredLeague = (this.config.league || this.defaults.league || "ncaa_mbb").toLowerCase();
 
-    const favoriteLeagues = Object.keys(favorites);
-    const normalizedOrder = this.normalizeLeagueOrder(this.config.availableLeagues, favoriteLeagues);
-    this.config.availableLeagueOrder = normalizedOrder.length ? normalizedOrder : favoriteLeagues;
+    const normalizedOrder = this.normalizeLeagueOrder(
+      this.config.availableLeagues,
+      Object.keys(LEAGUE_DEFAULTS)
+    );
+    this.config.availableLeagueOrder = normalizedOrder.length ? normalizedOrder : Object.keys(LEAGUE_DEFAULTS);
     this.config.availableLeagues = [...this.config.availableLeagueOrder];
 
-    if (!favoriteLeagues.includes(configuredLeague)) {
-      configuredLeague = this.config.availableLeagueOrder[0] || favoriteLeagues[0] || configuredLeague;
-      this.config.league = configuredLeague;
+    if (!this.config.availableLeagueOrder.includes(configuredLeague)) {
+      configuredLeague = this.config.availableLeagueOrder[0] || configuredLeague;
     }
-
     this.config.league = configuredLeague;
 
-    const leagueDefaults = LEAGUE_DEFAULTS[configuredLeague] || LEAGUE_DEFAULTS[this.defaults.league] || {};
+    const selections = this.normalizeTeamSelections(
+      this.config.teamSelections,
+      this.config.availableLeagueOrder
+    );
+    this.resolvedTeamSelections = selections;
+    this.config.teamSelections = Object.fromEntries(
+      Object.entries(selections).map(([league, data]) => [league, data.key])
+    );
+
+    const leagueDefaults = LEAGUE_DEFAULTS[configuredLeague] || {};
     this.config.leagueName = leagueDefaults.name || "Basketball";
     this.config.sportPath = leagueDefaults.sportPath || "basketball/mens-college-basketball";
 
-    this.config.leagueFavorites = Object.fromEntries(
-      Object.entries(favorites).map(([league, data]) => [league, data.key])
-    );
-
-    const presetTeam = favorites[configuredLeague] || this.resolveTeamPreset(configuredLeague, this.config.teamPreset);
+    const presetTeam = selections[configuredLeague] || this.resolveTeamPreset(configuredLeague, this.config.teamPreset);
     let teamConfig = (presetTeam && presetTeam.team) || {};
 
     if (presetTeam && presetTeam.key) {
@@ -784,14 +1017,10 @@ Module.register("MMM-LiveStats", {
     }
 
     if (!teamConfig || Object.keys(teamConfig).length === 0) {
-      teamConfig = { ...((LEAGUE_DEFAULTS[configuredLeague] && {
-        id: LEAGUE_DEFAULTS[configuredLeague].favoriteTeamId,
-        displayName: LEAGUE_DEFAULTS[configuredLeague].favoriteTeamDisplayName,
-        shortDisplayName: LEAGUE_DEFAULTS[configuredLeague].favoriteTeamShortDisplayName
-      }) || {}) };
+      teamConfig = this.resolveDefaultTeamConfig(configuredLeague);
     }
 
-    const fallbackDisplayName = leagueDefaults.favoriteTeamDisplayName || "Favorite Team";
+    const fallbackDisplayName = leagueDefaults.favoriteTeamDisplayName || "Selected Team";
     const fallbackShortDisplayName = leagueDefaults.favoriteTeamShortDisplayName || fallbackDisplayName;
 
     this.config.favoriteTeamId = teamConfig.id || leagueDefaults.favoriteTeamId;
@@ -851,29 +1080,35 @@ Module.register("MMM-LiveStats", {
     return allowedSet ? Array.from(allowedSet) : Object.keys(LEAGUE_DEFAULTS);
   },
 
-  normalizeLeagueFavorites(favorites) {
-    const result = {};
-    if (favorites && typeof favorites === "object") {
-      Object.entries(favorites).forEach(([league, presetKey]) => {
-        const normalizedLeague = String(league || "").toLowerCase();
-        if (!Object.prototype.hasOwnProperty.call(LEAGUE_DEFAULTS, normalizedLeague)) {
-          return;
-        }
-        const resolved = this.resolveTeamPreset(normalizedLeague, presetKey);
-        if (resolved) {
-          result[normalizedLeague] = resolved;
-        }
-      });
-    }
+  normalizeTeamSelections(selections, allowedLeagues) {
+    const resolved = {};
+    const allowed = Array.isArray(allowedLeagues) && allowedLeagues.length > 0
+      ? allowedLeagues.map((league) => String(league || "").toLowerCase())
+      : Object.keys(TEAM_PRESETS);
 
-    if (Object.keys(result).length === 0) {
-      const fallback = this.resolveTeamPreset("wnba", "indiana_fever");
-      if (fallback) {
-        result.wnba = fallback;
+    const source = selections && typeof selections === "object" ? selections : {};
+
+    allowed.forEach((league) => {
+      if (!Object.prototype.hasOwnProperty.call(TEAM_PRESETS, league)) {
+        return;
+      }
+
+      const presetKey = source[league];
+      const resolvedPreset = this.resolveTeamPreset(league, presetKey) || this.resolveDefaultTeamPreset(league);
+      if (resolvedPreset) {
+        resolved[league] = resolvedPreset;
+      }
+    });
+
+    if (Object.keys(resolved).length === 0) {
+      const fallbackLeague = allowed[0] || this.defaults.league || "ncaa_mbb";
+      const fallbackPreset = this.resolveDefaultTeamPreset(fallbackLeague);
+      if (fallbackPreset) {
+        resolved[fallbackLeague] = fallbackPreset;
       }
     }
 
-    return result;
+    return resolved;
   },
 
   resolveTeamPreset(league, presetKey) {
@@ -885,13 +1120,44 @@ Module.register("MMM-LiveStats", {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "_")
       .replace(/^_+|_+$/g, "");
-    const presets = TEAM_PRESETS[league];
+    const normalizedLeague = String(league || "").toLowerCase();
+    const presets = TEAM_PRESETS[normalizedLeague];
     if (!presets) {
       return null;
     }
 
     const entry = Object.entries(presets).find(([key]) => key === normalizedKey);
     return entry ? { key: normalizedKey, team: { ...entry[1] } } : null;
+  },
+
+  resolveDefaultTeamPreset(league) {
+    const normalizedLeague = String(league || "").toLowerCase();
+    const presets = TEAM_PRESETS[normalizedLeague];
+    if (!presets) {
+      return null;
+    }
+
+    const preferredKey = DEFAULT_TEAM_PRESETS[normalizedLeague];
+    if (preferredKey && presets[preferredKey]) {
+      return { key: preferredKey, team: { ...presets[preferredKey] } };
+    }
+
+    const entry = Object.entries(presets)[0];
+    return entry ? { key: entry[0], team: { ...entry[1] } } : null;
+  },
+
+  resolveDefaultTeamConfig(league) {
+    const preset = this.resolveDefaultTeamPreset(league);
+    if (preset) {
+      return { ...preset.team };
+    }
+
+    const defaults = LEAGUE_DEFAULTS[league] || {};
+    return {
+      id: defaults.favoriteTeamId,
+      displayName: defaults.favoriteTeamDisplayName,
+      shortDisplayName: defaults.favoriteTeamShortDisplayName
+    };
   },
 
   shouldShowLeagueSwitch() {
@@ -921,6 +1187,39 @@ Module.register("MMM-LiveStats", {
     return info ? info.name : league;
   },
 
+  changeTeam(newTeamKey) {
+    const league = this.config.league;
+    const selection = this.resolveTeamPreset(league, newTeamKey);
+    const current =
+      this.resolvedTeamSelections && this.resolvedTeamSelections[league] ? this.resolvedTeamSelections[league] : null;
+
+    if (!selection || (current && current.key === selection.key)) {
+      return;
+    }
+
+    if (!this.config.teamSelections || typeof this.config.teamSelections !== "object") {
+      this.config.teamSelections = {};
+    }
+
+    const normalizedLeague = String(league || "").toLowerCase();
+    this.config.teamSelections[normalizedLeague] = selection.key;
+    this.config.teamPreset = selection.key;
+    this.config.team = { ...selection.team };
+    this.config.headerText = "";
+
+    this.normalizeConfig();
+    this.availableLeagueOrder = this.config.availableLeagueOrder;
+
+    this.loaded = false;
+    this.error = null;
+    this.favoriteTeam = null;
+    this.liveGame = null;
+    this.upcomingGames = [];
+    this.activeStatsTeam = "favorite";
+    this.updateDom(0);
+    this.sendSocketNotification("CONFIG", this.config);
+  },
+
   changeLeague(newLeague) {
     const normalized = String(newLeague || "").toLowerCase();
     if (!normalized || normalized === this.config.league) {
@@ -935,7 +1234,7 @@ Module.register("MMM-LiveStats", {
     this.config.headerText = "";
     this.normalizeConfig();
     this.availableLeagueOrder = this.config.availableLeagueOrder;
-    this.resolvedLeagueFavorites = this.resolvedLeagueFavorites || {};
+    this.resolvedTeamSelections = this.resolvedTeamSelections || {};
     this.loaded = false;
     this.error = null;
     this.favoriteTeam = null;

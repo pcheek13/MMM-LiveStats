@@ -1,19 +1,19 @@
 # MMM-LiveStats
 
-MMM-LiveStats is a MagicMirror² module that tracks your favorite team with real-time box scores and a steady stream of upcoming matchups. It supports a single league at a time—NCAA men's basketball, the NBA, the WNBA, or the NHL—so you can dedicate the mirror space to the club that matters most. When a game is live you will see animated alerts, live scores, and player statistics tuned to each sport; between games the module always highlights the next three contests on the schedule. A touch-friendly league switcher makes it easy to hop between leagues right on the mirror, and each league can have its own preset favorite so only the teams you care about appear as choices.
+MMM-LiveStats is a MagicMirror² module that follows your chosen team with real-time box scores and a steady stream of upcoming matchups. It supports a single league at a time—NCAA men's basketball, the NBA, the WNBA, or the NHL—so you can dedicate the mirror space to the club that matters most. When a game is live you will see animated alerts, live scores, and player statistics tuned to each sport; between games the module always highlights the next three contests on the schedule. Touch-friendly dropdowns let you swap leagues and teams right on the mirror, so you no longer have to predefine "favorites" in the configuration file.
 
 ## Features
 
 - Works with NCAA men's basketball, NBA, WNBA, and NHL teams using ESPN's public data feeds (no API key required).
 - Always-on upcoming schedule that shows the next three games even when no live event is in progress.
 - Flashing red live indicator on the stats table whenever your team is playing.
-- Team crests and color logos for your favorite team and every opponent.
-- Favorite-team banner with medium-sized crest and the current season record.
+- Team crests and color logos for your selected team and every opponent.
+- Selected-team banner with medium-sized crest and the current season record.
 - Scoreboard that keeps both teams' scores, names, and logos front and center.
 - Player list that shows jersey numbers alongside names for quick identification.
 - On-demand stats toggle that flips the live player table between your team and the opponent with a single tap.
 - Fouls column for basketball leagues and hockey-centric stats (goals, assists, points, shots, PIM) for NHL matchups.
-- Configurable polling interval, module header, team presets, and an optional on-screen league switcher.
+- Configurable polling interval, module header, deep team preset catalog, and optional on-screen league and team switchers.
 
 ## Installation
 
@@ -33,18 +33,17 @@ After installation, add the module to your `config/config.js` file.
 Add MMM-LiveStats to the `modules` array in `config.js`:
 
 ```javascript
-{
+{ 
   module: "MMM-LiveStats",
   position: "top_left",
   config: {
-    league: "wnba", // starting league; must exist in leagueFavorites
-    leagueFavorites: {
-      wnba: "indiana_fever", // defaults to the Indiana Fever
-      nba: "indiana_pacers", // optional – include only the leagues you want to switch between
-      ncaa_mbb: "indiana_state"
+    league: "ncaa_mbb", // starting league
+    teamSelections: {
+      ncaa_mbb: "indiana_state",
+      wnba: "indiana_fever",
+      nba: "indiana_pacers"
     },
-    teamPreset: "indiana_fever", // optional override for the active league
-    availableLeagues: ["wnba", "nba"], // order controls the on-screen switcher
+    availableLeagues: ["ncaa_mbb", "wnba", "nba"], // order controls the on-screen switcher
     enableLeagueSwitch: true,
     updateInterval: 5 * 60 * 1000,
     maxUpcoming: 3
@@ -56,9 +55,9 @@ Add MMM-LiveStats to the `modules` array in `config.js`:
 
 | Option | Type | Default | Description |
 | ------ | ---- | ------- | ----------- |
-| `league` | `string` | `"wnba"` | Determines which league to display on startup. Supported values: `"ncaa_mbb"`, `"nba"`, `"wnba"`, `"nhl"`. The league must also have an entry in `leagueFavorites`. |
-| `leagueFavorites` | `object` | `{ wnba: "indiana_fever" }` | Maps leagues to preset keys. Only leagues present in this object appear in the UI. Leave a league out (or set it to an empty value) to hide it from the switcher. |
-| `teamPreset` | `string` | `"indiana_fever"` | Convenience override for the active league. Presets include `"indiana_state"`, `"purdue"`, `"kansas"`, `"duke"`, `"north_carolina"`, `"gonzaga"`, `"uconn"`, `"indiana_pacers"`, `"boston_celtics"`, `"denver_nuggets"`, `"los_angeles_lakers"`, `"golden_state_warriors"`, `"miami_heat"`, `"new_york_knicks"`, `"indiana_fever"`, `"atlanta_dream"`, `"chicago_sky"`, `"connecticut_sun"`, `"dallas_wings"`, `"las_vegas_aces"`, `"los_angeles_sparks"`, `"minnesota_lynx"`, `"new_york_liberty"`, `"phoenix_mercury"`, `"seattle_storm"`, `"washington_mystics"`, `"chicago_blackhawks"`, `"detroit_red_wings"`, `"colorado_avalanche"`, `"toronto_maple_leafs"`, `"boston_bruins"`, `"edmonton_oilers"`, and `"vegas_golden_knights"`. |
+| `league` | `string` | `"ncaa_mbb"` | Determines which league to display on startup. Supported values: `"ncaa_mbb"`, `"nba"`, `"wnba"`, `"nhl"`. |
+| `teamSelections` | `object` | `{ ncaa_mbb: "indiana_state" }` | Maps leagues to preset keys so each league can remember a starting team. If a league is omitted the module falls back to its default preset. |
+| `teamPreset` | `string` | `""` | Convenience override for the active league. Presets include `"indiana_state"`, `"purdue"`, `"kansas"`, `"duke"`, `"north_carolina"`, `"gonzaga"`, `"uconn"`, `"arizona"`, `"kentucky"`, `"michigan_state"`, `"ucla"`, `"houston"`, `"villanova"`, `"baylor"`, `"tennessee"`, `"indiana_pacers"`, `"atlanta_hawks"`, `"boston_celtics"`, `"brooklyn_nets"`, `"chicago_bulls"`, `"cleveland_cavaliers"`, `"dallas_mavericks"`, `"denver_nuggets"`, `"golden_state_warriors"`, `"los_angeles_clippers"`, `"los_angeles_lakers"`, `"memphis_grizzlies"`, `"miami_heat"`, `"milwaukee_bucks"`, `"new_orleans_pelicans"`, `"new_york_knicks"`, `"philadelphia_76ers"`, `"phoenix_suns"`, `"sacramento_kings"`, `"indiana_fever"`, `"atlanta_dream"`, `"chicago_sky"`, `"connecticut_sun"`, `"dallas_wings"`, `"las_vegas_aces"`, `"los_angeles_sparks"`, `"minnesota_lynx"`, `"new_york_liberty"`, `"phoenix_mercury"`, `"seattle_storm"`, `"washington_mystics"`, `"chicago_blackhawks"`, `"boston_bruins"`, `"colorado_avalanche"`, `"detroit_red_wings"`, `"edmonton_oilers"`, `"los_angeles_kings"`, `"new_york_rangers"`, `"pittsburgh_penguins"`, `"tampa_bay_lightning"`, `"toronto_maple_leafs"`, `"vancouver_canucks"`, `"vegas_golden_knights"`, and `"washington_capitals"`. |
 | `team` | `object` | `{}` | Optional helper that lets you supply custom identifiers when a preset is unavailable. When set it fills `favoriteTeamId`, `favoriteTeamDisplayName`, and `favoriteTeamShortDisplayName`. |
 | `favoriteTeamId` | `string` | League-specific default | Overrides the team ID used in API calls. Typically populated from `teamPreset` or `team`. |
 | `favoriteTeamDisplayName` | `string` | League-specific default | Overrides the friendly team name shown in the UI. |
@@ -66,16 +65,17 @@ Add MMM-LiveStats to the `modules` array in `config.js`:
 | `headerText` | `string` | `<Team Name> Live Stats` | Custom text displayed in the MagicMirror module header. When omitted the module builds a header from the favorite team name. |
 | `updateInterval` | `number` | `300000` | Polling frequency in milliseconds. The module enforces a minimum interval of 60 seconds. |
 | `maxUpcoming` | `number` | `3` | Number of upcoming games to display (minimum of 1). |
-| `availableLeagues` | `array` or `string` | Derived from `leagueFavorites` | Controls which leagues appear in the on-screen selector. Accepts an array or a comma/space separated string of league keys. Any entries not present in `leagueFavorites` are ignored. |
+| `availableLeagues` | `array` or `string` | `["ncaa_mbb", "nba", "nhl", "wnba"]` | Controls which leagues appear in the on-screen selector. Accepts an array or a comma/space separated string of league keys. Any entries not supported by the module are ignored. |
 | `enableLeagueSwitch` | `boolean` | `true` | Toggles the on-screen league selector. Set to `false` to hide the dropdown entirely. |
 
 The optional values above stack together so you can start with a preset and override only the pieces you need:
 
-- `teamPreset` fills in `favoriteTeamId`, names, and ESPN pathing for you. As long as you pick a preset that matches the active league, no other identifiers are required.
+- `teamSelections` seeds a preset for every league you care about so the module knows which team to load when you switch between them.
+- `teamPreset` fills in `favoriteTeamId`, names, and ESPN pathing for the active league. As long as you pick a preset that matches the selected league, no other identifiers are required.
 - Setting the `team` helper object lets you supply custom IDs and display names when a preset is missing. Any keys you leave out continue to fall back to the preset or league defaults.
 - Direct overrides like `favoriteTeamId` or `headerText` always win last, which makes it easy to fine-tune the UI without abandoning the preset conveniences.
 
-Because each league holds exactly one favorite at a time, the module resolves identifiers in this order: explicit overrides → `team` helper → `teamPreset` → league defaults. This keeps your configuration minimal while still supporting edge cases such as alternate ESPN abbreviations.
+Because the module only renders one league at a time, identifiers resolve in this order: explicit overrides → `team` helper → `teamPreset` → league defaults. This keeps your configuration minimal while still supporting edge cases such as alternate ESPN abbreviations.
 
 ### Configuration Examples
 
@@ -87,10 +87,9 @@ Because each league holds exactly one favorite at a time, the module resolves id
   position: "top_left",
   config: {
     league: "ncaa_mbb",
-    leagueFavorites: {
+    teamSelections: {
       ncaa_mbb: "indiana_state"
     },
-    teamPreset: "indiana_state",
     enableLeagueSwitch: false
   }
 }
@@ -98,7 +97,7 @@ Because each league holds exactly one favorite at a time, the module resolves id
 
 This configuration keeps the mirror locked on NCAA men's basketball and relies entirely on the preset helper for the Indiana State Sycamores—no manual IDs necessary.
 
-**Multi-league setup with several favorites**
+**Multi-league setup with several teams**
 
 ```javascript
 {
@@ -106,23 +105,22 @@ This configuration keeps the mirror locked on NCAA men's basketball and relies e
   position: "top_left",
   config: {
     league: "wnba",
-    leagueFavorites: {
+    teamSelections: {
       wnba: "indiana_fever",
       nba: "indiana_pacers",
       ncaa_mbb: "indiana_state"
     },
     availableLeagues: ["wnba", "nba", "ncaa_mbb"],
-    teamPreset: "indiana_fever",
     headerText: "Hoops Hub"
   }
 }
 ```
 
-Here the mirror boots into the WNBA but the on-screen selector lets you jump between the Fever, Pacers, and Sycamores. Each entry points to a preset so the module automatically retrieves the correct ESPN identifiers, logos, and records for every league.
+Here the mirror boots into the WNBA but the on-screen selectors let you jump between the Fever, Pacers, and Sycamores. Each entry points to a preset so the module automatically retrieves the correct ESPN identifiers, logos, and records for every league.
 
 ### Switching Teams
 
-Use `leagueFavorites` to declare which teams you care about, then pick your starting league with `config.league`. Each entry should point at a preset helper key so the module can fill in the correct ESPN identifiers. The ESPN endpoints expect the identifiers used on `espn.com`. Some common examples:
+Use `teamSelections` to declare which presets you want to load first, then pick your starting league with `config.league`. The on-screen team dropdown always lists every preset for the active league, so you can experiment at runtime without editing `config.js`. When you need a team that is not in the preset catalog you can fall back to explicit identifiers. The ESPN endpoints expect the identifiers used on `espn.com`. Some common examples:
 
 | League | Team | Identifier |
 | ------ | ---- | ---------- |
@@ -139,11 +137,13 @@ Use `leagueFavorites` to declare which teams you care about, then pick your star
 | NHL | Detroit Red Wings | `det` |
 | NHL | Toronto Maple Leafs | `tor` |
 
-When you supply `leagueFavorites`, the module automatically pulls logos and season records from ESPN for each league you enable. You can override any piece individually by setting `teamPreset`, the `team` helper, or the related explicit options (`favoriteTeamId`, `favoriteTeamDisplayName`, etc.). Leagues without a favorite preset are omitted from the UI so the on-screen selector only lists valid teams.
+When you supply `teamSelections`, the module automatically pulls logos and season records from ESPN for each league you enable. You can override any piece individually by setting `teamPreset`, the `team` helper, or the related explicit options (`favoriteTeamId`, `favoriteTeamDisplayName`, etc.). Leagues you leave out fall back to their default presets but can still be enabled through `availableLeagues` if you want to surface their dropdown entries.
 
 ### Switching Leagues On-Screen
 
-If `enableLeagueSwitch` is true and `availableLeagues` contains at least two entries, the module renders a touch-friendly dropdown on the top-right of the favorite-team banner. Picking a league from the selector reloads the module with the appropriate defaults and immediately fetches fresh data—no need to edit `config.js` when you want to peek at another league.
+If `enableLeagueSwitch` is true and `availableLeagues` contains at least two entries, the module renders a touch-friendly dropdown on the top-right of the selected-team banner. Picking a league from the selector reloads the module with the appropriate defaults and immediately fetches fresh data—no need to edit `config.js` when you want to peek at another league.
+
+The league selector is paired with a team dropdown for the active league. It lists every preset for that sport so you can flip between teams with a tap; the choice persists thanks to `teamSelections`, and you can still override the identifiers manually if a preset is missing.
 
 ## Data Sources
 
