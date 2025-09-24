@@ -286,7 +286,7 @@ const TEAM_PRESETS = {
     washington_capitals: {
       id: "wsh",
       displayName: "Washington Capitals",
-
+      shortDisplayName: "Capitals"
     }
   },
   wnba: {

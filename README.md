@@ -68,6 +68,15 @@ Add MMM-LiveStats to the `modules` array in `config.js`:
 | `availableLeagues` | `array` or `string` | `["ncaa_mbb", "nba", "nhl", "wnba"]` | Controls which leagues appear in the on-screen selector. Accepts an array or a comma/space separated string of league keys. Any entries not supported by the module are ignored. |
 | `enableLeagueSwitch` | `boolean` | `true` | Toggles the on-screen league selector. Set to `false` to hide the dropdown entirely. |
 
+### Configuring the League and Team Dropdowns
+
+Follow the steps below to enable the touch-friendly league and team selectors on the mirror:
+
+1. **List the leagues you want to cycle through.** Add an `availableLeagues` array (or a comma separated string) that only contains the leagues you plan to surface. The order of this list is the order shown in the dropdown.
+2. **Provide a starting preset for each league.** Populate `teamSelections` with a preset key for every league in `availableLeagues`. When you switch leagues at runtime the module automatically loads the preset you defined here.
+3. **Leave `enableLeagueSwitch` set to `true`.** This renders the league dropdown in the header. If you set the value to `false` the control is hidden even when `availableLeagues` lists multiple leagues.
+4. **(Optional) Override the active league preset.** Use `teamPreset` when you want the module to start on a different team than the one listed in `teamSelections[config.league]`. This only affects the initial load—the dropdown still reflects the selections you mapped in step 2.
+
 The optional values above stack together so you can start with a preset and override only the pieces you need:
 
 - `teamSelections` seeds a preset for every league you care about so the module knows which team to load when you switch between them.
