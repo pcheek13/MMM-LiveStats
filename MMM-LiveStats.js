@@ -229,6 +229,7 @@ const TEAM_PRESETS = {
       displayName: "Colorado Avalanche",
       shortDisplayName: "Avalanche"
     },
+
     detroit_red_wings: {
       id: "det",
       displayName: "Detroit Red Wings",
