@@ -20,6 +20,15 @@ const LEAGUE_SETTINGS = {
       shortDisplayName: "Pacers"
     }
   },
+  nhl: {
+    name: "NHL",
+    sportPath: "hockey/nhl",
+    defaultTeam: {
+      id: "chi",
+      displayName: "Chicago Blackhawks",
+      shortDisplayName: "Blackhawks"
+    }
+  },
   wnba: {
     name: "WNBA",
     sportPath: "basketball/wnba",
@@ -109,6 +118,43 @@ const TEAM_PRESETS = {
       id: "ny",
       displayName: "New York Knicks",
       shortDisplayName: "Knicks"
+    }
+  },
+  nhl: {
+    chicago_blackhawks: {
+      id: "chi",
+      displayName: "Chicago Blackhawks",
+      shortDisplayName: "Blackhawks"
+    },
+    detroit_red_wings: {
+      id: "det",
+      displayName: "Detroit Red Wings",
+      shortDisplayName: "Red Wings"
+    },
+    colorado_avalanche: {
+      id: "col",
+      displayName: "Colorado Avalanche",
+      shortDisplayName: "Avalanche"
+    },
+    toronto_maple_leafs: {
+      id: "tor",
+      displayName: "Toronto Maple Leafs",
+      shortDisplayName: "Maple Leafs"
+    },
+    boston_bruins: {
+      id: "bos",
+      displayName: "Boston Bruins",
+      shortDisplayName: "Bruins"
+    },
+    edmonton_oilers: {
+      id: "edm",
+      displayName: "Edmonton Oilers",
+      shortDisplayName: "Oilers"
+    },
+    vegas_golden_knights: {
+      id: "vgk",
+      displayName: "Vegas Golden Knights",
+      shortDisplayName: "Golden Knights"
     }
   },
   wnba: {
@@ -301,11 +347,14 @@ module.exports = NodeHelper.create({
       venueSource.venue &&
       (venueSource.venue.fullName || venueSource.venue.displayName);
 
+    const statColumns = this.getStatColumnsForLeague(this.config.league);
+
     const players = this.extractPlayerStats(
       summary.boxscore && summary.boxscore.players,
       favoriteTeam,
       favorite,
-      opponent
+      opponent,
+      statColumns
     );
 
     const statusSource = summaryCompetition || eventCompetition || event;
@@ -322,11 +371,12 @@ module.exports = NodeHelper.create({
       favorite: this.mapCompetitorTeam(favorite, favoriteTeam),
       opponent: this.mapCompetitorTeam(opponent),
       venue: venue || "",
-      players
+      players,
+      statColumns
     };
   },
 
-  extractPlayerStats(playersData, favoriteTeamProfile, favoriteCompetitor, opponentCompetitor) {
+  extractPlayerStats(playersData, favoriteTeamProfile, favoriteCompetitor, opponentCompetitor, statColumns) {
     if (!Array.isArray(playersData)) {
       return { favorite: [], opponent: [] };
     }
@@ -338,12 +388,12 @@ module.exports = NodeHelper.create({
     const opponentIdentifiers = this.buildCompetitorIdentifierSet(opponentCompetitor);
 
     return {
-      favorite: this.extractTeamPlayerStats(playersData, favoriteIdentifiers),
-      opponent: this.extractTeamPlayerStats(playersData, opponentIdentifiers)
+      favorite: this.extractTeamPlayerStats(playersData, favoriteIdentifiers, statColumns),
+      opponent: this.extractTeamPlayerStats(playersData, opponentIdentifiers, statColumns)
     };
   },
 
-  extractTeamPlayerStats(playersData, identifiers) {
+  extractTeamPlayerStats(playersData, identifiers, statColumns) {
     if (!identifiers || identifiers.size === 0) {
       return [];
     }
@@ -390,14 +440,18 @@ module.exports = NodeHelper.create({
     return statsEntry.athletes.map((athlete) => {
       const statLine = this.mapStats(labels, athlete.stats);
       const info = athlete.athlete || {};
+      const stats = {};
+
+      (Array.isArray(statColumns) ? statColumns : []).forEach((column) => {
+        const sources = Array.isArray(column.sources) && column.sources.length > 0 ? column.sources : [column.label];
+        stats[column.key] = this.resolveStatValue(statLine, sources) || "";
+      });
+
       return {
         id: info.id,
         name: info.displayName || info.shortName || "Unknown",
         position: info.position && info.position.abbreviation,
-        points: statLine.PTS || statLine.Points || "",
-        rebounds: statLine.REB || statLine.Rebounds || "",
-        assists: statLine.AST || statLine.Assists || "",
-        steals: statLine.STL || statLine.Steals || ""
+        stats
       };
     });
   },
@@ -413,6 +467,20 @@ module.exports = NodeHelper.create({
     });
 
     return result;
+  },
+
+  resolveStatValue(statLine, sources) {
+    if (!statLine || typeof statLine !== "object") {
+      return "";
+    }
+
+    for (const source of sources) {
+      if (typeof statLine[source] !== "undefined" && statLine[source] !== null) {
+        return statLine[source];
+      }
+    }
+
+    return "";
   },
 
   formatUpcoming(event, favoriteTeam) {
@@ -903,6 +971,28 @@ module.exports = NodeHelper.create({
     }
 
     return response.json();
+  },
+
+  getStatColumnsForLeague(league) {
+    const normalized = String(league || "").toLowerCase();
+
+    if (normalized === "nhl") {
+      return [
+        { key: "goals", label: "G", sources: ["G", "Goals"] },
+        { key: "assists", label: "A", sources: ["A", "Assists"] },
+        { key: "points", label: "P", sources: ["P", "Points"] },
+        { key: "shots", label: "SOG", sources: ["SOG", "Shots", "Shots on Goal"] },
+        { key: "pim", label: "PIM", sources: ["PIM", "Penalty Minutes"] }
+      ];
+    }
+
+    return [
+      { key: "points", label: "PTS", sources: ["PTS", "Points"] },
+      { key: "rebounds", label: "REB", sources: ["REB", "Rebounds"] },
+      { key: "assists", label: "AST", sources: ["AST", "Assists"] },
+      { key: "steals", label: "STL", sources: ["STL", "Steals"] },
+      { key: "fouls", label: "PF", sources: ["PF", "Fouls", "Personal Fouls"] }
+    ];
   }
 });
 

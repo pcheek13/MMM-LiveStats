@@ -9,11 +9,19 @@
   height: auto;
 }
 
+.mmm-live-stats .favorite-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
 .mmm-live-stats .favorite-team {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1rem;
+  flex: 1 1 auto;
 }
 
 .mmm-live-stats .favorite-logo {
@@ -39,18 +47,12 @@
 
 .mmm-live-stats .league-switch {
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  margin: 0.5rem 0 1rem;
-}
-
-.mmm-live-stats .league-switch-label {
-  font-size: 0.9em;
-  color: #aaa;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .mmm-live-stats .league-switch-button {
-  align-self: flex-start;
   padding: 0.4rem 1rem;
   border-radius: 0.75rem;
   background: rgba(17, 25, 40, 0.6);

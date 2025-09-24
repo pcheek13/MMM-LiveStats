@@ -15,6 +15,13 @@ const LEAGUE_DEFAULTS = {
     favoriteTeamDisplayName: "Indiana Pacers",
     favoriteTeamShortDisplayName: "Pacers"
   },
+  nhl: {
+    name: "NHL",
+    sportPath: "hockey/nhl",
+    favoriteTeamId: "chi",
+    favoriteTeamDisplayName: "Chicago Blackhawks",
+    favoriteTeamShortDisplayName: "Blackhawks"
+  },
   wnba: {
     name: "WNBA",
     sportPath: "basketball/wnba",
@@ -97,6 +104,43 @@ const TEAM_PRESETS = {
       id: "ny",
       displayName: "New York Knicks",
       shortDisplayName: "Knicks"
+    }
+  },
+  nhl: {
+    chicago_blackhawks: {
+      id: "chi",
+      displayName: "Chicago Blackhawks",
+      shortDisplayName: "Blackhawks"
+    },
+    detroit_red_wings: {
+      id: "det",
+      displayName: "Detroit Red Wings",
+      shortDisplayName: "Red Wings"
+    },
+    colorado_avalanche: {
+      id: "col",
+      displayName: "Colorado Avalanche",
+      shortDisplayName: "Avalanche"
+    },
+    toronto_maple_leafs: {
+      id: "tor",
+      displayName: "Toronto Maple Leafs",
+      shortDisplayName: "Maple Leafs"
+    },
+    boston_bruins: {
+      id: "bos",
+      displayName: "Boston Bruins",
+      shortDisplayName: "Bruins"
+    },
+    edmonton_oilers: {
+      id: "edm",
+      displayName: "Edmonton Oilers",
+      shortDisplayName: "Oilers"
+    },
+    vegas_golden_knights: {
+      id: "vgk",
+      displayName: "Vegas Golden Knights",
+      shortDisplayName: "Golden Knights"
     }
   },
   wnba: {
@@ -257,10 +301,6 @@ Module.register("MMM-LiveStats", {
       wrapper.appendChild(this.renderFavoriteHeader());
     }
 
-    if (this.shouldShowLeagueSwitch()) {
-      wrapper.appendChild(this.renderLeagueSwitch());
-    }
-
     if (this.liveGame) {
       wrapper.appendChild(this.renderLiveGame());
       wrapper.appendChild(
@@ -339,12 +379,15 @@ Module.register("MMM-LiveStats", {
 
     tableWrapper.appendChild(controls);
 
+    const statColumns = this.getLiveStatColumns();
+
     const table = document.createElement("table");
     table.className = "stats-table";
 
     const thead = document.createElement("thead");
     const headerRow = document.createElement("tr");
-    ["Player", "PTS", "REB", "AST", "STL"].forEach((label) => {
+    const headers = ["Player", ...statColumns.map((column) => column.label || column.key.toUpperCase())];
+    headers.forEach((label) => {
       const th = document.createElement("th");
       th.innerText = label;
       headerRow.appendChild(th);
@@ -362,8 +405,8 @@ Module.register("MMM-LiveStats", {
       nameCell.innerText = player.name;
       row.appendChild(nameCell);
 
-      const stats = [player.points, player.rebounds, player.assists, player.steals];
-      stats.forEach((value) => {
+      statColumns.forEach((column) => {
+        const value = player.stats ? player.stats[column.key] : "";
         const td = document.createElement("td");
         td.innerText = value || "-";
         row.appendChild(td);
@@ -375,7 +418,7 @@ Module.register("MMM-LiveStats", {
     if (!tbody.hasChildNodes()) {
       const row = document.createElement("tr");
       const cell = document.createElement("td");
-      cell.colSpan = 5;
+      cell.colSpan = 1 + statColumns.length;
       cell.className = "no-data";
       const activeTeamName = this.getTeamName(activeTeam, activeKey);
       cell.innerText = `Live player stats are not currently available for ${activeTeamName}.`;
@@ -450,7 +493,10 @@ Module.register("MMM-LiveStats", {
 
   renderFavoriteHeader() {
     const container = document.createElement("div");
-    container.className = "favorite-team";
+    container.className = "favorite-header";
+
+    const favoriteInfo = document.createElement("div");
+    favoriteInfo.className = "favorite-team";
 
     const logoUrl = this.getLogoUrl(this.favoriteTeam && this.favoriteTeam.logos && this.favoriteTeam.logos.primary);
     if (logoUrl) {
@@ -458,7 +504,7 @@ Module.register("MMM-LiveStats", {
       logo.className = "team-logo favorite-logo";
       logo.src = logoUrl;
       logo.alt = `${this.favoriteTeam.displayName} logo`;
-      container.appendChild(logo);
+      favoriteInfo.appendChild(logo);
     }
 
     const text = document.createElement("div");
@@ -479,7 +525,13 @@ Module.register("MMM-LiveStats", {
     recordEl.innerText = `Record: ${label}`;
     text.appendChild(recordEl);
 
-    container.appendChild(text);
+    favoriteInfo.appendChild(text);
+
+    container.appendChild(favoriteInfo);
+
+    if (this.shouldShowLeagueSwitch()) {
+      container.appendChild(this.renderLeagueSwitch());
+    }
 
     return container;
   },
@@ -502,11 +554,6 @@ Module.register("MMM-LiveStats", {
       this.cycleLeague();
     });
 
-    const label = document.createElement("div");
-    label.className = "league-switch-label";
-    label.innerText = `Current league: ${currentName}`;
-
-    container.appendChild(label);
     container.appendChild(button);
 
     return container;
@@ -608,6 +655,30 @@ Module.register("MMM-LiveStats", {
     }
 
     return players.slice(0, 10);
+  },
+
+  getLiveStatColumns() {
+    if (this.liveGame && Array.isArray(this.liveGame.statColumns) && this.liveGame.statColumns.length > 0) {
+      return this.liveGame.statColumns;
+    }
+
+    if ((this.config.league || "").toLowerCase() === "nhl") {
+      return [
+        { key: "goals", label: "G" },
+        { key: "assists", label: "A" },
+        { key: "points", label: "P" },
+        { key: "shots", label: "SOG" },
+        { key: "pim", label: "PIM" }
+      ];
+    }
+
+    return [
+      { key: "points", label: "PTS" },
+      { key: "rebounds", label: "REB" },
+      { key: "assists", label: "AST" },
+      { key: "steals", label: "STL" },
+      { key: "fouls", label: "PF" }
+    ];
   },
 
   toggleLiveStatsTeam() {

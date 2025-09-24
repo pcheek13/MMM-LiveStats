@@ -1,16 +1,17 @@
 # MMM-LiveStats
 
-MMM-LiveStats is a MagicMirror² module that tracks your favorite basketball program with real-time box scores and a steady stream of upcoming matchups. It supports a single league at a time—NCAA men's basketball, the NBA, or the WNBA—so you can dedicate the mirror space to the team that matters most. When a game is live you will see animated alerts, live scores, and player statistics; between games the module always highlights the next three contests on the schedule. A touch-friendly league switcher makes it easy to hop between leagues right on the mirror, and each league can have its own preset favorite so only the teams you care about appear as choices.
+MMM-LiveStats is a MagicMirror² module that tracks your favorite team with real-time box scores and a steady stream of upcoming matchups. It supports a single league at a time—NCAA men's basketball, the NBA, the WNBA, or the NHL—so you can dedicate the mirror space to the club that matters most. When a game is live you will see animated alerts, live scores, and player statistics tuned to each sport; between games the module always highlights the next three contests on the schedule. A touch-friendly league switcher makes it easy to hop between leagues right on the mirror, and each league can have its own preset favorite so only the teams you care about appear as choices.
 
 ## Features
 
-- Works with NCAA men's basketball, NBA, and WNBA teams using ESPN's public data feeds (no API key required).
+- Works with NCAA men's basketball, NBA, WNBA, and NHL teams using ESPN's public data feeds (no API key required).
 - Always-on upcoming schedule that shows the next three games even when no live event is in progress.
 - Flashing red live indicator on the stats table whenever your team is playing.
 - Team crests and color logos for your favorite team and every opponent.
 - Favorite-team banner with medium-sized crest and the current season record.
 - Scoreboard that keeps both teams' scores, names, and logos front and center.
 - On-demand stats toggle that flips the live player table between your team and the opponent with a single tap.
+- Fouls column for basketball leagues and hockey-centric stats (goals, assists, points, shots, PIM) for NHL matchups.
 - Configurable polling interval, module header, team presets, and an optional on-screen league switcher.
 
 ## Installation
@@ -54,9 +55,9 @@ Add MMM-LiveStats to the `modules` array in `config.js`:
 
 | Option | Type | Default | Description |
 | ------ | ---- | ------- | ----------- |
-| `league` | `string` | `"wnba"` | Determines which league to display on startup. Supported values: `"ncaa_mbb"`, `"nba"`, `"wnba"`. The league must also have an entry in `leagueFavorites`. |
+| `league` | `string` | `"wnba"` | Determines which league to display on startup. Supported values: `"ncaa_mbb"`, `"nba"`, `"wnba"`, `"nhl"`. The league must also have an entry in `leagueFavorites`. |
 | `leagueFavorites` | `object` | `{ wnba: "indiana_fever" }` | Maps leagues to preset keys. Only leagues present in this object appear in the UI. Leave a league out (or set it to an empty value) to hide it from the switcher. |
-| `teamPreset` | `string` | `"indiana_fever"` | Convenience override for the active league. Presets include `"indiana_state"`, `"purdue"`, `"kansas"`, `"duke"`, `"north_carolina"`, `"gonzaga"`, `"uconn"`, `"indiana_pacers"`, `"boston_celtics"`, `"denver_nuggets"`, `"los_angeles_lakers"`, `"golden_state_warriors"`, `"miami_heat"`, `"new_york_knicks"`, `"indiana_fever"`, `"atlanta_dream"`, `"chicago_sky"`, `"connecticut_sun"`, `"dallas_wings"`, `"las_vegas_aces"`, `"los_angeles_sparks"`, `"minnesota_lynx"`, `"new_york_liberty"`, `"phoenix_mercury"`, `"seattle_storm"`, and `"washington_mystics"`. |
+| `teamPreset` | `string` | `"indiana_fever"` | Convenience override for the active league. Presets include `"indiana_state"`, `"purdue"`, `"kansas"`, `"duke"`, `"north_carolina"`, `"gonzaga"`, `"uconn"`, `"indiana_pacers"`, `"boston_celtics"`, `"denver_nuggets"`, `"los_angeles_lakers"`, `"golden_state_warriors"`, `"miami_heat"`, `"new_york_knicks"`, `"indiana_fever"`, `"atlanta_dream"`, `"chicago_sky"`, `"connecticut_sun"`, `"dallas_wings"`, `"las_vegas_aces"`, `"los_angeles_sparks"`, `"minnesota_lynx"`, `"new_york_liberty"`, `"phoenix_mercury"`, `"seattle_storm"`, `"washington_mystics"`, `"chicago_blackhawks"`, `"detroit_red_wings"`, `"colorado_avalanche"`, `"toronto_maple_leafs"`, `"boston_bruins"`, `"edmonton_oilers"`, and `"vegas_golden_knights"`. |
 | `team` | `object` | `{}` | Optional helper that lets you supply custom identifiers when a preset is unavailable. When set it fills `favoriteTeamId`, `favoriteTeamDisplayName`, and `favoriteTeamShortDisplayName`. |
 | `favoriteTeamId` | `string` | League-specific default | Overrides the team ID used in API calls. Typically populated from `teamPreset` or `team`. |
 | `favoriteTeamDisplayName` | `string` | League-specific default | Overrides the friendly team name shown in the UI. |
@@ -133,12 +134,15 @@ Use `leagueFavorites` to declare which teams you care about, then pick your star
 | WNBA | Indiana Fever | `ind` |
 | WNBA | Las Vegas Aces | `lv` |
 | WNBA | New York Liberty | `ny` |
+| NHL | Chicago Blackhawks | `chi` |
+| NHL | Detroit Red Wings | `det` |
+| NHL | Toronto Maple Leafs | `tor` |
 
 When you supply `leagueFavorites`, the module automatically pulls logos and season records from ESPN for each league you enable. You can override any piece individually by setting `teamPreset`, the `team` helper, or the related explicit options (`favoriteTeamId`, `favoriteTeamDisplayName`, etc.). Leagues without a favorite preset are omitted from the UI so the on-screen switcher only cycles through valid teams.
 
 ### Switching Leagues On-Screen
 
-If `enableLeagueSwitch` is true and `availableLeagues` contains at least two entries, the module renders a touch-friendly button underneath the favorite-team banner. Tapping or clicking the button cycles through the configured leagues in order, reloads the module with the appropriate defaults, and immediately fetches fresh data—no need to edit `config.js` when you want to peek at another league.
+If `enableLeagueSwitch` is true and `availableLeagues` contains at least two entries, the module renders a touch-friendly button on the top-right of the favorite-team banner. Tapping or clicking the button cycles through the configured leagues in order, reloads the module with the appropriate defaults, and immediately fetches fresh data—no need to edit `config.js` when you want to peek at another league.
 
 ## Data Sources
 
@@ -147,7 +151,8 @@ MMM-LiveStats uses public ESPN endpoints—no API key is required:
 - NCAA Men's Basketball: `https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/teams/{teamId}/schedule`
 - NBA: `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{teamId}/schedule`
 - WNBA: `https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/{teamId}/schedule`
-- Game summaries (all leagues): `https://site.api.espn.com/apis/site/v2/sports/basketball/{leaguePath}/summary?event={eventId}`
+- NHL: `https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/{teamId}/schedule`
+- Game summaries (all leagues): `https://site.api.espn.com/apis/site/v2/sports/{leaguePath}/summary?event={eventId}` where `leaguePath` matches the active league's `sportPath` (for example `basketball/nba` or `hockey/nhl`).
 
 Replace `{leaguePath}` with `mens-college-basketball`, `nba`, or `wnba` to match the active league.
 
