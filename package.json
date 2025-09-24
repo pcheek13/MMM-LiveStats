@@ -2,7 +2,7 @@
   "name": "mmm-livestats",
   "version": "1.1.0",
   "description": "MagicMirror² module for live NCAA men's basketball, NBA, or WNBA stats with upcoming schedules and team logos.",
-  "main": "MMM_LiveStats.js",
+  "main": "MMM-LiveStats.js",
   "keywords": [
     "MagicMirror",
     "MagicMirror2",
