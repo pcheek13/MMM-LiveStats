@@ -603,7 +603,11 @@ Module.register("MMM-LiveStats", {
 
     const key = this.getActiveStatsTeamKey();
     const players = this.liveGame.players[key];
-    return Array.isArray(players) ? players : [];
+    if (!Array.isArray(players)) {
+      return [];
+    }
+
+    return players.slice(0, 10);
   },
 
   toggleLiveStatsTeam() {
