@@ -518,6 +518,7 @@ Module.register("MMM-LiveStats", {
       }
 
       favoriteInfo.appendChild(logoWrapper);
+
     }
 
     const text = document.createElement("div");
